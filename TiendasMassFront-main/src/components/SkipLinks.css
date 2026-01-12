@@ -1,0 +1,35 @@
+/* SkipLinks.css */
+.skip-links {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  z-index: 1000;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #0033a0;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  z-index: 1000;
+  transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+  top: 6px;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.skip-links .skip-link:nth-child(2) { top: -80px; }
+.skip-links .skip-link:nth-child(3) { top: -120px; }
+.skip-links .skip-link:nth-child(4) { top: -160px; }
+
+.skip-links .skip-link:nth-child(2):focus { top: 46px; }
+.skip-links .skip-link:nth-child(3):focus { top: 86px; }
+.skip-links .skip-link:nth-child(4):focus { top: 126px; }
