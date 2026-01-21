@@ -270,7 +270,7 @@ export const obtenerPedidosPorUsuario = async (req: Request, res: Response): Pro
 
     const pedidos = await pedidoRepo.find({
       where: { usuario: { id: Number(usuarioId) } },
-      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago"],
+      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago", "shippingMethod"],
       order: { id: "DESC" }
     });
 
@@ -280,7 +280,16 @@ export const obtenerPedidosPorUsuario = async (req: Request, res: Response): Pro
         nombre: usuario.nombre,
         email: usuario.email
       },
-      pedidos
+      pedidos: pedidos.map(p => ({
+        ...p,
+        cantidadProductos: p.detallesPedidos?.reduce((sum: number, d: any) => sum + d.cantidad, 0) || 0,
+        tipoEnvio: p.shippingMethod?.nombre || "Retiro en tienda",
+        infoPedido: {
+          cantidadProductos: p.detallesPedidos?.reduce((sum: number, d: any) => sum + d.cantidad, 0) || 0,
+          tipoEnvio: p.shippingMethod?.nombre || "Retiro en tienda",
+          direccionEntrega: p.direccionEnvio || "Retiro en sede"
+        }
+      }))
     });
   } catch (error) {
     console.error(error);
