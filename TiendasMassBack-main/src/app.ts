@@ -20,6 +20,7 @@ import direccionRoutes from "./routes/direccion.routes";
 import tarjetaUsuarioRoutes from "./routes/tarjeta-usuario.routes";
 import authRoutes from "./routes/auth.routes";
 import setupRoutes from "./routes/setup.routes";
+import tiendaRoutes from "./routes/tienda.routes";
 
 // === MERCADO PAGO ===
 import mpRoutes from "./routes/payments.mp"; // /preference y /preference/health
@@ -68,6 +69,8 @@ app.use("/api/estados", estadoRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/direcciones", direccionRoutes);
 app.use("/api/tarjetas-usuario", tarjetaUsuarioRoutes);
+//NUEVO PARA TIENDA--JIM
+app.use("/api/tiendas", tiendaRoutes);
 
 app.get("/", (_req, res) => {
   res.send("🚀 Bienvenido a TiendasMass API. Backend corriendo con éxito.");

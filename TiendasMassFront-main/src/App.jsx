@@ -22,6 +22,8 @@ import GestionUsuarios from './admin/components/GestionUsuarios';
 import ReportesPedidos from './admin/components/ReportesPedidos';
 import CrearAdmin from './admin/components/CrearAdmin';
 import AdminRoute from './components/AdminRoute';
+import GestionTienda from './admin/components/GestionTienda';
+
 
 import { initMercadoPago } from '@mercadopago/sdk-react';
 
@@ -56,6 +58,7 @@ function App() {
               <Route path="usuarios" element={<GestionUsuarios />} />
               <Route path="reportes" element={<ReportesPedidos />} />
               <Route path="crear-admin" element={<CrearAdmin />} />
+              <Route path="tiendas" element={<GestionTienda />} />
             </Route>
 
             {/* Rutas públicas */}

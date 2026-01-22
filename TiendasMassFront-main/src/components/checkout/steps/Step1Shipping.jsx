@@ -1,8 +1,11 @@
 // steps/Step1Shipping.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapPin, User, Mail, Phone, Truck, Store } from 'lucide-react';
 import { useCarrito } from '../../../context/carContext';
 import { useUsuario } from '../../../context/userContext';
+
+const API_URL = "http://localhost:5000";
+
 
 const Step1Shipping = ({
   formData,
@@ -16,15 +19,42 @@ const Step1Shipping = ({
   handleAddressChange,
   useCustomAddress
 }) => {
+
+  // 🔹 Hooks propios del componente (NO BORRAR)
   const { carrito, aumentarCantidad, disminuirCantidad, quitarProducto } = useCarrito();
   const { usuario } = useUsuario();
 
+  // 🔹 NUEVO: tiendas desde backend
+  const [tiendas, setTiendas] = useState([]);
+  const [loadingTiendas, setLoadingTiendas] = useState(false);
+
+  useEffect(() => {
+    const loadTiendas = async () => {
+      try {
+        setLoadingTiendas(true);
+        const res = await fetch(`${API_URL}/api/tiendas/activas`);
+        if (!res.ok) throw new Error('Error al cargar tiendas');
+        const data = await res.json();
+        setTiendas(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        setTiendas([]);
+      } finally {
+        setLoadingTiendas(false);
+      }
+    };
+
+    loadTiendas();
+  }, []);
+
+  // 🔹 Utilidades (NO BORRAR)
   const parsePrice = (p) => (typeof p === 'number' ? p : (parseFloat(p) || 0));
   const normalizeImageUrl = (url) => {
     if (!url) return '/placeholder-image.jpg';
     return url.replace('http://localhost:3000', 'http://localhost:5000');
   };
 
+  // 🔹 Handler (NO BORRAR)
   const handleFieldChange = (field, value) => {
     updateFormData(field, value);
     validation.validateSingleField(field, value);
@@ -155,18 +185,35 @@ const Step1Shipping = ({
 
           {formData.deliveryType === 'pickup' && (
             <div className="form-group full">
-              <label className="form-label"><Store className="form-icon" />Seleccionar Tienda *</label>
+              <label className="form-label">
+                <Store className="form-icon" />Seleccionar Tienda *
+              </label>
+
               <select
                 className={`form-select ${validation.getFieldError('selectedStore').length > 0 ? 'input-error' : ''}`}
                 value={formData.selectedStore || ''}
                 onChange={e => handleFieldChange('selectedStore', e.target.value)}
+                disabled={loadingTiendas}
               >
-                <option value="">Seleccionar tienda</option>
-                <option value="Centro – Av. Principal 123">Centro – Av. Principal 123</option>
-                <option value="Norte – Calle Comercial 456">Norte – Calle Comercial 456</option>
-                <option value="Sur – Plaza Shopping 789">Sur – Plaza Shopping 789</option>
-                <option value="Este – Mall Central 101">Este – Mall Central 101</option>
+                <option value="">
+                  {loadingTiendas ? 'Cargando tiendas...' : 'Seleccionar tienda'}
+                </option>
+
+                {tiendas.map(t => (
+                  <option key={t.id} value={String(t.id)}>
+                    {t.nombre}
+                    {t.direccion ? ` — ${t.direccion}` : ''}
+                    {t.telefono ? ` | Tel: ${t.telefono}` : ''}
+                  </option>
+                ))}
               </select>
+
+              {!loadingTiendas && tiendas.length === 0 && (
+                <div className="error-messages">
+                  <span className="error-text">No hay tiendas disponibles para recojo.</span>
+                </div>
+              )}
+
               {validation.getFieldError('selectedStore').map((error, index) => (
                 <div key={index} className="error-messages">
                   <span className="error-text">{error}</span>
@@ -174,6 +221,7 @@ const Step1Shipping = ({
               ))}
             </div>
           )}
+
 
           {formData.deliveryType === 'delivery' && (
             <>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut } from 'lucide-react';
+import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut ,Store } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const URL = "http://localhost:5000"; // URL de Azure
@@ -18,6 +18,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
     { to: '/admin/estados', label: 'Estados', icon: Settings },
     { to: '/admin/metodos-pago', label: 'Métodos de Pago', icon: CreditCard },
     { to: '/admin/crear-admin', label: 'Crear Admin', icon: UserPlus },
+    { to: '/admin/tiendas', label: 'Tiendas', icon: Store }, // ✅ NUEVO
   ];
 
   const handleLogout = () => {

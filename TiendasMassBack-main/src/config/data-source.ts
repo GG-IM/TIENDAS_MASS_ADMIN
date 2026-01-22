@@ -11,7 +11,7 @@ export const AppDataSource = new DataSource({
   host:  "localhost",
   port:  3306,
   username:  "root",
-  password:  "Jesus2@36",
+  password:  "123456789",
   database:  "tiendasmass",
   synchronize: false,
   logging: true,
