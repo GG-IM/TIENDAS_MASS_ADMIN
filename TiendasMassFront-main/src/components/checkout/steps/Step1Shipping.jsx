@@ -4,7 +4,7 @@ import { MapPin, User, Mail, Phone, Truck, Store } from 'lucide-react';
 import { useCarrito } from '../../../context/carContext';
 import { useUsuario } from '../../../context/userContext';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 
 const Step1Shipping = ({
@@ -52,7 +52,7 @@ const Step1Shipping = ({
   const parsePrice = (p) => (typeof p === 'number' ? p : (parseFloat(p) || 0));
   const normalizeImageUrl = (url) => {
     if (!url) return '/placeholder-image.jpg';
-    return url.replace('http://localhost:3000', 'http://localhost:5000');
+    return url.replace('http://localhost:3000', 'http://localhost:5001');
   };
 
   // 🔹 Handler (NO BORRAR)
@@ -72,7 +72,7 @@ const Step1Shipping = ({
           carrito.map(item => (
             <div key={item.id} className="cart-item">
               <img
-                src={normalizeImageUrl(item.imagen ? `http://localhost:5000/${item.imagen}` : '/placeholder-image.jpg')}
+                src={normalizeImageUrl(item.imagen ? `http://localhost:5001/${item.imagen}` : '/placeholder-image.jpg')}
                 alt={item.nombre}
                 onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg'; }}
               />

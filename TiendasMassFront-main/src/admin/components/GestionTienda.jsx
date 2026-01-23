@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Edit, Trash2, Plus, Search } from 'lucide-react';
 import Swal from 'sweetalert2';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 const GestionTienda = () => {
   const [tiendas, setTiendas] = useState([]);

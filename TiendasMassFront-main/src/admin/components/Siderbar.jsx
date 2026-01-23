@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut } from 'lucide-react';
+import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut ,Store } from 'lucide-react';
 import Swal from 'sweetalert2';
 
-const URL = "http://localhost:5001"; // URL de Azure
+const URL = "http://localhost:5000"; // URL de Azure
 
 const Sidebar = ({ collapsed, onToggle }) => {
   const location = useLocation();
@@ -18,6 +19,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
     { to: '/admin/estados', label: 'Estados', icon: Settings },
     { to: '/admin/metodos-pago', label: 'Métodos de Pago', icon: CreditCard },
     { to: '/admin/crear-admin', label: 'Crear Admin', icon: UserPlus },
+    { to: '/admin/tiendas', label: 'Tiendas', icon: Store }, // ✅ NUEVO
   ];
 
   const handleLogout = () => {
@@ -130,36 +132,3 @@ const Sidebar = ({ collapsed, onToggle }) => {
 };
 
 export default Sidebar;
-
-/*
-Agrega en tu CSS:
-.exit-panel-button:hover {
-  background: #ffe5d0;
-  color: #fff;
-  border-color: #d35400;
-}
-.custom-logout-button {
-  background: #f8f9fa;
-  color: #b71c1c;
-  border: 1.5px solid #b71c1c;
-  border-radius: 8px;
-  width: 100%;
-  padding: 0.7rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: background 0.2s, color 0.2s, border 0.2s;
-  cursor: pointer;
-  margin-bottom: 4px;
-}
-.custom-logout-button .nav-icon {
-  font-size: 1.3rem;
-}
-.custom-logout-button:hover {
-  background: #ffb3b3;
-  color: #fff;
-  border-color: #e53935;
-}
-*/
