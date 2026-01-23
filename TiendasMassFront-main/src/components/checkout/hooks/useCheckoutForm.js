@@ -224,6 +224,11 @@ export const useCheckoutForm = () => {
         }))
       };
 
+      // Si el usuario seleccionó una dirección guardada, incluir su id
+      if (selectedAddressId && selectedAddressId !== 'custom') {
+        pedidoData.direccionId = parseInt(selectedAddressId);
+      }
+
       if (paymentMethod === 'userCard' && selectedCardId) {
         const c = userCards.find(card => card.id.toString() === selectedCardId);
         if (c) {

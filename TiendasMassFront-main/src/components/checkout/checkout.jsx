@@ -162,6 +162,7 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
               selectedMetodoEnvioId={checkoutForm.selectedMetodoEnvioId}
               setSelectedMetodoEnvioId={checkoutForm.setSelectedMetodoEnvioId}
               userAddresses={checkoutData.userAddresses}
+              reloadUserAddresses={checkoutData.reloadUserAddresses}
               selectedAddressId={checkoutForm.selectedAddressId}
               handleAddressChange={checkoutForm.handleAddressChange}
               useCustomAddress={checkoutForm.useCustomAddress}

@@ -11,7 +11,7 @@ export const useCheckoutData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { usuario } = useUsuario();
+  const { usuario, getToken } = useUsuario();
 
   // Cargar métodos de pago
   useEffect(() => {
@@ -43,11 +43,12 @@ export const useCheckoutData = () => {
 
   // Cargar direcciones del usuario
   useEffect(() => {
-    if (!usuario?.token) return;
+    const token = getToken();
+    if (!token || !usuario?.id) return;
 
     const loadUserAddresses = async () => {
       try {
-        const addresses = await checkoutService.fetchUserAddresses(usuario.token);
+        const addresses = await checkoutService.fetchUserAddresses(token, usuario.id);
         setUserAddresses(addresses);
       } catch (error) {
         console.error('Error loading user addresses:', error);
@@ -55,7 +56,7 @@ export const useCheckoutData = () => {
       }
     };
     loadUserAddresses();
-  }, [usuario?.token]);
+  }, [getToken, usuario?.id]);
 
   // Cargar tarjetas del usuario
   useEffect(() => {
@@ -80,6 +81,15 @@ export const useCheckoutData = () => {
     userAddresses,
     loading,
     error,
-    setError
+    setError,
+    reloadUserAddresses: async () => {
+      if (!usuario?.token) return;
+      try {
+        const addresses = await checkoutService.fetchUserAddresses(usuario.token, usuario.id);
+        setUserAddresses(addresses);
+      } catch (err) {
+        console.error('Error reloading addresses:', err);
+      }
+    }
   };
 };

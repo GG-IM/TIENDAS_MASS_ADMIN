@@ -27,13 +27,12 @@ export const checkoutService = {
   },
 
   // Obtener direcciones del usuario
-  async fetchUserAddresses(userToken) {
+  // acepta (userToken, userId). Si se pasa userId usa /api/direcciones/usuario/:usuarioId
+  async fetchUserAddresses(userToken, userId = null) {
     try {
-      const response = await fetch(`${API_URL}/api/direcciones`, {
-        headers: {
-          'Authorization': `Bearer ${userToken}`
-        }
-      });
+      const url = userId ? `${API_URL}/api/direcciones/usuario/${userId}` : `${API_URL}/api/direcciones`;
+      const opts = userToken ? { headers: { 'Authorization': `Bearer ${userToken}` } } : {};
+      const response = await fetch(url, opts);
       if (!response.ok) throw new Error('Error al cargar direcciones');
       return await response.json();
     } catch (error) {

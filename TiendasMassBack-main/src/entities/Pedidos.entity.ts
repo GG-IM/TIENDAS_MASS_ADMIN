@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn } from "typeorm";
 import { Usuario } from "./Usuario.entity";
+import { Direccion } from "./Direccion.entity";
 import { DetallePedido } from "./DetallePedido.entity";
 import { MetodoEnvio } from "./MetodoEnvio.entity";
 import { Reporte } from "./Reportes.entity";
@@ -41,6 +42,10 @@ export class Pedido {
 
   @Column("text", { nullable: true })
   direccionEnvio: string;
+
+  @ManyToOne(() => Direccion, { nullable: true })
+  @JoinColumn({ name: 'direccion_id' })
+  direccion: Direccion | null;
 
   @CreateDateColumn({ name: "fecha_pedido" })
   fechaPedido: Date;

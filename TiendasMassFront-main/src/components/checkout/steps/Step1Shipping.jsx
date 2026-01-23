@@ -7,7 +7,7 @@ import { useUsuario } from '../../../context/userContext';
 const API_URL = "http://localhost:5000";
 
 
-const Step1Shipping = ({
+  const Step1Shipping = ({
   formData,
   updateFormData,
   validation,
@@ -18,7 +18,9 @@ const Step1Shipping = ({
   selectedAddressId,
   handleAddressChange,
   useCustomAddress
-}) => {
+  ,
+    reloadUserAddresses
+  }) => {
 
   // 🔹 Hooks propios del componente (NO BORRAR)
   const { carrito, aumentarCantidad, disminuirCantidad, quitarProducto } = useCarrito();
@@ -225,23 +227,53 @@ const Step1Shipping = ({
 
           {formData.deliveryType === 'delivery' && (
             <>
-              {usuario && userAddresses.length > 0 && (
+              {usuario && (
                 <div className="form-group full">
                   <label className="form-label"><MapPin className="form-icon" />Seleccionar Dirección</label>
                   <div className="address-selector">
-                    <select
-                      className="form-select"
-                      value={selectedAddressId}
-                      onChange={(e) => handleAddressChange(e.target.value)}
-                    >
-                      <option value="">Seleccionar dirección guardada</option>
-                      {userAddresses.map(address => (
-                        <option key={address.id} value={address.id.toString()}>
-                          {address.nombre} - {address.calle}, {address.ciudad}{address.esPrincipal && ' (Principal)'}
-                        </option>
-                      ))}
-                      <option value="custom">+ Agregar dirección nueva</option>
-                    </select>
+                    <div style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                      <select
+                        className="form-select"
+                        value={selectedAddressId ? String(selectedAddressId) : ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleAddressChange(val);
+                          // Si seleccionó una dirección guardada, rellenar campos del formulario
+                          if (val && val !== 'custom') {
+                            const addr = userAddresses.find(a => String(a.id) === String(val));
+                            if (addr) {
+                              updateFormData('address', addr.calle || '');
+                              updateFormData('city', addr.ciudad || '');
+                              updateFormData('zipCode', addr.codigoPostal || '');
+                              updateFormData('reference', addr.referencia || '');
+                            }
+                          } else if (val === 'custom') {
+                            // limpiar campos para dirección manual
+                            updateFormData('address', '');
+                            updateFormData('city', '');
+                            updateFormData('zipCode', '');
+                            updateFormData('reference', '');
+                          }
+                        }}
+                        disabled={userAddresses.length === 0}
+                      >
+                        <option value="">{userAddresses.length === 0 ? 'No tienes direcciones guardadas' : 'Seleccionar dirección guardada'}</option>
+                        {userAddresses.map(address => (
+                          <option key={address.id} value={address.id.toString()}>
+                            {address.nombre} - {address.calle}, {address.ciudad}{address.esPrincipal && ' (Principal)'}
+                          </option>
+                        ))}
+                        <option value="custom">+ Agregar dirección nueva</option>
+                      </select>
+                      <div style={{display: 'flex', gap: 8}}>
+                        <button type="button" className="btn-tertiary" onClick={async () => {
+                          if (typeof reloadUserAddresses === 'function') {
+                            await reloadUserAddresses();
+                          }
+                        }} title="Recargar direcciones">Recargar</button>
+                        <a href="/perfil#addresses" className="btn-link">Ir a Mis Direcciones</a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

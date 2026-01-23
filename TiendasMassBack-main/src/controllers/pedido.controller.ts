@@ -7,6 +7,7 @@ import { Usuario } from "../entities/Usuario.entity";
 import { Producto } from "../entities/Producto.entity";
 import { MetodoPago } from "../entities/MetodoPago.entity";
 import { MetodoEnvio } from "../entities/MetodoEnvio.entity";
+import { Direccion } from "../entities/Direccion.entity";
 
 export const crearPedido = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -15,6 +16,7 @@ export const crearPedido = async (req: Request, res: Response): Promise<Response
     const {
       usuarioId,
       direccionEnvio = "",
+      direccionId = null,
       metodoPagoId,
       detalles = [],
       montoTotal,
@@ -28,6 +30,7 @@ export const crearPedido = async (req: Request, res: Response): Promise<Response
     const detalleRepo = AppDataSource.getRepository(DetallePedido);
     const metodoPagoRepo = AppDataSource.getRepository(MetodoPago);
     const metodoEnvioRepo = AppDataSource.getRepository(MetodoEnvio);
+    const direccionRepo = AppDataSource.getRepository(Direccion);
 
     // --- Usuario
     const usuario = await usuarioRepo.findOneBy({ id: Number(usuarioId) });
@@ -46,6 +49,7 @@ export const crearPedido = async (req: Request, res: Response): Promise<Response
 
     // --- Método de envío (flexible)
     let metodoEnvio: MetodoEnvio | null = null;
+    let direccionSeleccionada: Direccion | null = null;
     if (deliveryType === "delivery") {
       if (metodoEnvioId) {
         metodoEnvio = await metodoEnvioRepo.findOneBy({ id: Number(metodoEnvioId) });
@@ -55,6 +59,13 @@ export const crearPedido = async (req: Request, res: Response): Promise<Response
       }
       console.log("Método de envío encontrado:", metodoEnvio);
       if (!metodoEnvio) return res.status(400).json({ error: "Método de envío inválido" });
+      // Si se envió un direccionId, validarla
+      if (direccionId) {
+        direccionSeleccionada = await direccionRepo.findOneBy({ id: Number(direccionId) });
+        if (!direccionSeleccionada || direccionSeleccionada.usuarioId !== Number(usuarioId) || !direccionSeleccionada.activa) {
+          return res.status(400).json({ error: "Dirección de envío inválida" });
+        }
+      }
     } else {
       // pickup: sin método de envío y costo 0
       metodoEnvio = null;
@@ -109,9 +120,14 @@ export const crearPedido = async (req: Request, res: Response): Promise<Response
     }
 
     // --- Crear pedido (guardamos el monto calculado)
+    const direccionTexto = direccionSeleccionada
+      ? `${direccionSeleccionada.nombre} - ${direccionSeleccionada.calle}, ${direccionSeleccionada.ciudad} ${direccionSeleccionada.codigoPostal}`
+      : (direccionEnvio || null);
+
     const nuevoPedido = pedidoRepo.create({
       usuario,
-      direccionEnvio,
+      direccionEnvio: direccionTexto,
+      direccion: direccionSeleccionada || null,
       metodoPago,
       shippingMethod: metodoEnvio,                   // null si pickup
       estado: EstadoPedido.PENDIENTE,
@@ -158,7 +174,7 @@ export const obtenerPedidos = async (req: Request, res: Response): Promise<Respo
   try {
     const pedidoRepo = AppDataSource.getRepository(Pedido);
     const pedidos = await pedidoRepo.find({
-      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago", "shippingMethod"]
+      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago", "shippingMethod", "direccion"]
     });
     return res.json(pedidos);
   } catch (error) {
@@ -173,7 +189,7 @@ export const obtenerPedidoPorId = async (req: Request, res: Response): Promise<R
     const pedidoRepo = AppDataSource.getRepository(Pedido);
     const pedido = await pedidoRepo.findOne({
       where: { id: Number(id) },
-      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago", "shippingMethod"]
+      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago", "shippingMethod", "direccion"]
     });
 
     if (!pedido) return res.status(404).json({ error: "Pedido no encontrado" });
@@ -186,6 +202,7 @@ export const obtenerPedidoPorId = async (req: Request, res: Response): Promise<R
       estadoPago: pedido.estadoPago,
       montoTotal: Number(pedido.montoTotal),
       direccionEnvio: pedido.direccionEnvio,
+      direccion: pedido.direccion,
       usuario: pedido.usuario
         ? {
             id: pedido.usuario.id,
@@ -270,7 +287,7 @@ export const obtenerPedidosPorUsuario = async (req: Request, res: Response): Pro
 
     const pedidos = await pedidoRepo.find({
       where: { usuario: { id: Number(usuarioId) } },
-      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago", "shippingMethod"],
+      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago", "shippingMethod", "direccion"],
       order: { id: "DESC" }
     });
 
