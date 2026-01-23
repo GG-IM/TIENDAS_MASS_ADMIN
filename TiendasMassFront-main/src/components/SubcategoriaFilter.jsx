@@ -34,14 +34,21 @@ const SubcategoriaFilter = ({ categoriaId, onSubcategoriaSelect }) => {
   }, [categoriaId]);
 
   const handleSelect = (subcategoriaId) => {
-    setSelectedSubcategoria(subcategoriaId);
-    onSubcategoriaSelect(subcategoriaId);
+    // Toggle: si ya está seleccionada, desselecciona
+    const newValue = selectedSubcategoria === subcategoriaId ? '' : subcategoriaId;
+    setSelectedSubcategoria(newValue);
+    onSubcategoriaSelect(newValue);
   };
 
   const handleClear = () => {
     setSelectedSubcategoria('');
     onSubcategoriaSelect('');
   };
+
+  // Resetear subcategoría cuando cambia la categoría
+  useEffect(() => {
+    setSelectedSubcategoria('');
+  }, [categoriaId]);
 
   if (!categoriaId || subcategorias.length === 0) {
     return null;

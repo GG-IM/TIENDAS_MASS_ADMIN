@@ -62,7 +62,6 @@ const Productos = ({ categoriaId,onProductClick }) => {
 
   if (loading) return <p>Cargando productos...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
-  if (productos.length === 0) return <p>No hay productos para esta categoría.</p>;
 
   return (
     <div className="productos-container">
@@ -71,6 +70,12 @@ const Productos = ({ categoriaId,onProductClick }) => {
         categoriaId={categoriaId}
         onSubcategoriaSelect={setSubcategoriaId}
       />
+
+      {productos.length === 0 && !loading && (
+        <p style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
+          No hay productos para esta categoría.
+        </p>
+      )}
 
       {mensaje && (
         <div
