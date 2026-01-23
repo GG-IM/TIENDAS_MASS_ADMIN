@@ -3,7 +3,7 @@ import { Edit, Trash2, Plus, Search } from 'lucide-react';
 import axios from 'axios';
 import swal from 'sweetalert2';
 
-const URL = "http://localhost:5000";
+const URL = "http://localhost:5001";
 
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);

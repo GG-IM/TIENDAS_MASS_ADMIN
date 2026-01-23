@@ -6,7 +6,7 @@ import './AuthStyles.css';
 import Swal from 'sweetalert2';
 import { validateLoginForm } from '../../utils/validators';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 function LoginForm({ switchToRegister }) {
   const navigate = useNavigate();

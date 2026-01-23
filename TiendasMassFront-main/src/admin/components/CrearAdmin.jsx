@@ -3,7 +3,7 @@ import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUserShield, FaSave, Fa
 import Swal from 'sweetalert2';
 import { validateUserForm, validateField } from '../../utils/usuariosvalidaciones';
 import './CrearAdmin.css';
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 const CrearAdmin = () => {
   const [formData, setFormData] = useState({
     nombre: '',

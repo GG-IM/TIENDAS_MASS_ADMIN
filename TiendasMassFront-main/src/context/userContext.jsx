@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 const UsuarioContext = createContext();
 
 export const UsuarioProvider = ({ children }) => {

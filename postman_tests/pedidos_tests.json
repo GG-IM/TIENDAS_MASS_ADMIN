@@ -41,10 +41,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/products/1",
+          "raw": "http://localhost:5001/api/products/1",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products", "1"]
         }
       }
@@ -61,10 +61,10 @@
           "raw": "{\n  \"usuarioId\": 1,\n  \"direccionEnvio\": \"Calle Principal 123, Ciudad\",\n  \"metodoPagoId\": 1,\n  \"metodoEnvioId\": 1,\n  \"detalles\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1\n    }\n  ],\n  \"montoTotal\": 19.44\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/pedidos",
+          "raw": "http://localhost:5001/api/pedidos",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos"]
         }
       },
@@ -154,10 +154,10 @@
           "raw": "{\n  \"usuarioId\": 99999,\n  \"direccionEnvio\": \"Calle Principal 123\",\n  \"metodoPagoId\": 1,\n  \"metodoEnvioId\": 1,\n  \"detalles\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1\n    }\n  ],\n  \"montoTotal\": 100\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/pedidos",
+          "raw": "http://localhost:5001/api/pedidos",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos"]
         }
       },
@@ -193,10 +193,10 @@
           "raw": "{\n  \"usuarioId\": 1,\n  \"direccionEnvio\": \"Calle Principal 123\",\n  \"metodoPagoId\": 1,\n  \"metodoEnvioId\": 1,\n  \"detalles\": [],\n  \"montoTotal\": 0\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/pedidos",
+          "raw": "http://localhost:5001/api/pedidos",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos"]
         }
       },
@@ -225,10 +225,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/pedidos",
+          "raw": "http://localhost:5001/api/pedidos",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos"]
         }
       },
@@ -267,10 +267,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/pedidos/1",
+          "raw": "http://localhost:5001/api/pedidos/1",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos", "1"]
         }
       },
@@ -304,10 +304,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/pedidos/usuario/{{usuarioId}}",
+          "raw": "http://localhost:5001/api/pedidos/usuario/{{usuarioId}}",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos", "usuario", "{{usuarioId}}"]
         }
       },
@@ -350,10 +350,10 @@
           "raw": "{\n  \"estado\": \"confirmado\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/pedidos/{{pedidoId}}",
+          "raw": "http://localhost:5001/api/pedidos/{{pedidoId}}",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos", "{{pedidoId}}"]
         }
       },
@@ -383,10 +383,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/pedidos/estadisticas",
+          "raw": "http://localhost:5001/api/pedidos/estadisticas",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos", "estadisticas"]
         }
       },
@@ -418,10 +418,10 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/pedidos/{{pedidoId}}",
+          "raw": "http://localhost:5001/api/pedidos/{{pedidoId}}",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "pedidos", "{{pedidoId}}"]
         }
       },

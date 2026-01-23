@@ -12,7 +12,7 @@ const OrderReports = () => {
   const [showOrderDetails, setShowOrderDetails] = useState(null);
   const [loading, setLoading] = useState(false);
 
-const API_URL = "http://localhost:5000/api/pedidos";
+const API_URL = "http://localhost:5001/api/pedidos";
 
   useEffect(() => {
     fetchOrders();

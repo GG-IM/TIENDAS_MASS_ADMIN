@@ -4,13 +4,15 @@ import { useCarrito } from '../../context/carContext';
 import { useUsuario } from '../../context/userContext';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './productCard';
+import SubcategoriaFilter from '../SubcategoriaFilter';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 const Productos = ({ categoriaId,onProductClick }) => {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
+  const [subcategoriaId, setSubcategoriaId] = useState('');
   const { agregarProducto, carrito } = useCarrito();
   const { usuario } = useUsuario();
   const navigate = useNavigate();
@@ -20,9 +22,17 @@ const Productos = ({ categoriaId,onProductClick }) => {
       setLoading(true);
       setError(null);
       try {
-        const url = categoriaId
-          ? `${API_URL}/api/products?categoriaId=${categoriaId}`
-          : `${API_URL}/api/products`;
+        let url = `${API_URL}/api/products`;
+        
+        // Construir parámetros de query
+        const params = [];
+        if (categoriaId) params.push(`categoriaId=${categoriaId}`);
+        if (subcategoriaId) params.push(`subcategoriaId=${subcategoriaId}`);
+        
+        if (params.length > 0) {
+          url += '?' + params.join('&');
+        }
+        
         const res = await axios.get(url);
         setProductos(res.data);
       } catch (err) {
@@ -34,7 +44,7 @@ const Productos = ({ categoriaId,onProductClick }) => {
     };
 
     fetchProductos();
-  }, [categoriaId]);
+  }, [categoriaId, subcategoriaId]);
 
   const handleAgregar = (productoConCantidad) => {
     agregarProducto(productoConCantidad);
@@ -56,7 +66,11 @@ const Productos = ({ categoriaId,onProductClick }) => {
 
   return (
     <div className="productos-container">
-
+      {/* Filtro de subcategorías */}
+      <SubcategoriaFilter 
+        categoriaId={categoriaId}
+        onSubcategoriaSelect={setSubcategoriaId}
+      />
 
       {mensaje && (
         <div

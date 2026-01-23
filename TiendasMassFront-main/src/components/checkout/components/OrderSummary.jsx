@@ -16,7 +16,7 @@ const OrderSummary = ({
 }) => {
   const normalizeImageUrl = (url) => {
     if (!url) return '/placeholder-image.jpg';
-    return url.replace('http://localhost:3000', 'http://localhost:5000');
+    return url.replace('http://localhost:3000', 'http://localhost:5001');
   };
 
   return (

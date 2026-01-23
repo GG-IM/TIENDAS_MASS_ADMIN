@@ -6,7 +6,7 @@ const API_URL =
   import.meta.env &&
   import.meta.env.VITE_API_URL
     ? import.meta.env.VITE_API_URL
-    : "http://localhost:5000";
+    : "http://localhost:5001";
 
 export const paymentService = {
   // Determinar estado de pago

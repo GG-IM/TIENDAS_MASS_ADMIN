@@ -36,7 +36,7 @@ const GestionUsuario = () => {
   });
   const [errors, setErrors] = useState({});
 
-  const API_URL = 'http://localhost:5000';
+  const API_URL = 'http://localhost:5001';
 
   // Mapeo de roles de BD a nombres para mostrar
   const rolMapping = {

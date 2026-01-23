@@ -11,7 +11,7 @@ import { useUsuario } from '../context/userContext';
 import '../styles/perfil.css';
 import logos from '../assets/logo.png';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 const menuItems = [
   { id: 'profile', label: 'Mi Perfil', icon: User },

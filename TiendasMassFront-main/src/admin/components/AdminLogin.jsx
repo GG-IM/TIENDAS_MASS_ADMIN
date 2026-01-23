@@ -4,7 +4,7 @@ import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { validateLoginForm } from '../../utils/validators';
 import './AdminLogin.css';
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
     email: '',

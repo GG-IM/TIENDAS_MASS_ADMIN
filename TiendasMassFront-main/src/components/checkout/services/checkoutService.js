@@ -1,5 +1,5 @@
 // services/checkoutService.js
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 export const checkoutService = {
   // Obtener métodos de pago

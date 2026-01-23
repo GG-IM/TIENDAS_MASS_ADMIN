@@ -297,16 +297,7 @@ export const obtenerPedidosPorUsuario = async (req: Request, res: Response): Pro
         nombre: usuario.nombre,
         email: usuario.email
       },
-      pedidos: pedidos.map(p => ({
-        ...p,
-        cantidadProductos: p.detallesPedidos?.reduce((sum: number, d: any) => sum + d.cantidad, 0) || 0,
-        tipoEnvio: p.shippingMethod?.nombre || "Retiro en tienda",
-        infoPedido: {
-          cantidadProductos: p.detallesPedidos?.reduce((sum: number, d: any) => sum + d.cantidad, 0) || 0,
-          tipoEnvio: p.shippingMethod?.nombre || "Retiro en tienda",
-          direccionEntrega: p.direccionEnvio || "Retiro en sede"
-        }
-      }))
+      pedidos
     });
   } catch (error) {
     console.error(error);

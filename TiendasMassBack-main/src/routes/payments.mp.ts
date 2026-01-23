@@ -11,7 +11,7 @@ const client = new MercadoPagoConfig({
 });
 
 // BACKEND (443) – solo como fallback
-const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5001';
 
 // URLs del FRONT (5173)
 const SUCCESS_URL = process.env.MP_SUCCESS_URL || 'http://localhost:5173/checkout/success';

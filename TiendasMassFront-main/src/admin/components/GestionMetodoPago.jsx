@@ -3,7 +3,7 @@ import { Edit, Trash2, Plus, Search } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { validateForm, validateField, checkDuplicateName } from '../../utils/metodospagovalidaciones';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 const PaymentMethodManager = () => {
   const [paymentMethods, setPaymentMethods] = useState([]);

@@ -26,7 +26,7 @@ const CheckoutSuccess = () => {
     const confirmarPago = async () => {
       try {
         const resp = await fetch(
-          `http://localhost:5000/api/payments/mp/confirm`,
+          `http://localhost:5001/api/payments/mp/confirm`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

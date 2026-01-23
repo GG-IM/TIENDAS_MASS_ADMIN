@@ -7,7 +7,7 @@ import ProductCard from '../components/productos/productCard';
 import '../styles/SearchResults.css';
 import ProductDetailModal from '../components/productos/detalleproductomodal';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 const ResultadosBusqueda = () => {
     const [productos, setProductos] = useState([]);

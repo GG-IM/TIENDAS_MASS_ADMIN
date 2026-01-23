@@ -3,6 +3,7 @@ import { Repository, In } from 'typeorm';
 import { AppDataSource } from '../config/data-source'; // Ajusta la ruta según tu estructura
 import { Producto } from '../entities/Producto.entity';
 import { Categoria } from '../entities/Categoria.entity';
+import { Subcategoria } from '../entities/Subcategoria.entity';
 import { Estado } from '../entities/Estado.entity';
 
 // Interfaces para tipado
@@ -14,6 +15,7 @@ interface ProductCreateRequest {
   stock?: number;
   estado?: boolean;
   categoria_id: number;
+  subcategoria_id?: number;
 }
 
 interface ProductUpdateRequest {
@@ -25,6 +27,7 @@ interface ProductUpdateRequest {
   stock?: number;
   estado?: boolean;
   categoria_id?: number;
+  subcategoria_id?: number;
 }
 
 interface MulterRequest extends Request {
@@ -34,11 +37,13 @@ interface MulterRequest extends Request {
 export class ProductController {
   private productRepository: Repository<Producto>;
   private categoryRepository: Repository<Categoria>;
+  private subcategoryRepository: Repository<Subcategoria>;
   private estadoRepository: Repository<Estado>;
 
   constructor() {
     this.productRepository = AppDataSource.getRepository(Producto);
     this.categoryRepository = AppDataSource.getRepository(Categoria);
+    this.subcategoryRepository = AppDataSource.getRepository(Subcategoria);
     this.estadoRepository = AppDataSource.getRepository(Estado);
   }
 
@@ -49,6 +54,7 @@ export class ProductController {
       precio: Number(product.precio), // Asegurar que sea número
       stock: Number(product.stock),   // Asegurar que sea número
       categoria_id: product.categoria?.id,
+      subcategoria_id: product.subcategoria?.id || null,
       estado_nombre: product.estado?.nombre
     };
   };
@@ -56,6 +62,7 @@ export class ProductController {
   public getAllProducts = async (req: Request, res: Response): Promise<void> => {
     try {
       const categoriaId = req.query.categoriaId as string;
+      const subcategoriaId = req.query.subcategoriaId as string;
       const searchQuery = (req.query.q as string)?.toLowerCase();
       let products: Producto[];
 
@@ -63,10 +70,15 @@ export class ProductController {
       const baseQuery = this.productRepository
         .createQueryBuilder('producto')
         .leftJoinAndSelect('producto.categoria', 'categoria')
+        .leftJoinAndSelect('producto.subcategoria', 'subcategoria')
         .leftJoinAndSelect('producto.estado', 'estado');
 
       if (categoriaId) {
         baseQuery.andWhere('categoria.id = :categoriaId', { categoriaId: parseInt(categoriaId) });
+      }
+
+      if (subcategoriaId) {
+        baseQuery.andWhere('subcategoria.id = :subcategoriaId', { subcategoriaId: parseInt(subcategoriaId) });
       }
 
       if (searchQuery) {
@@ -126,7 +138,8 @@ export class ProductController {
         descripcion, 
         stock = 0, 
         estado = true, 
-        categoria_id 
+        categoria_id,
+        subcategoria_id
       }: ProductCreateRequest = req.body;
 
       // Validaciones básicas
@@ -145,6 +158,19 @@ export class ProductController {
       if (!category) {
         res.status(400).json({ message: 'Categoría no válida' });
         return;
+      }
+
+      // Validar subcategoría si se proporciona
+      let subcategory = null;
+      if (subcategoria_id) {
+        subcategory = await this.subcategoryRepository.findOne({
+          where: { id: subcategoria_id, categoria: { id: categoria_id } }
+        });
+        
+        if (!subcategory) {
+          res.status(400).json({ message: 'Subcategoría no válida o no pertenece a la categoría especificada' });
+          return;
+        }
       }
 
       // Buscar estado activo o inactivo según el valor recibido
@@ -178,6 +204,7 @@ export class ProductController {
         imagen,
         stock: parseInt(stock.toString()),
         categoria: category,
+        subcategoria: subcategory,
         estado: estadoEntity
       });
 
@@ -193,7 +220,9 @@ export class ProductController {
         imagen: savedProduct.imagen,
         stock: Number(savedProduct.stock),   // Forzar como número
         categoria_id: category.id,
+        subcategoria_id: subcategory?.id || null,
         categoria: category,
+        subcategoria: subcategory,
         estado: estadoEntity,
         estado_nombre: estadoEntity.nombre
       });
@@ -221,13 +250,14 @@ export class ProductController {
         descripcion, 
         stock = 0, 
         estado = true, 
-        categoria_id 
+        categoria_id,
+        subcategoria_id
       }: ProductUpdateRequest = req.body;
 
       // Buscar el producto existente
       const existingProduct = await this.productRepository.findOne({
         where: { id },
-        relations: ['categoria', 'estado']
+        relations: ['categoria', 'subcategoria', 'estado']
       });
 
       if (!existingProduct) {
@@ -249,6 +279,24 @@ export class ProductController {
         category = newCategory;
       }
 
+      // Validar si la subcategoría existe (si se proporciona)
+      let subcategory = existingProduct.subcategoria;
+      if (subcategoria_id !== undefined) {
+        if (subcategoria_id === null) {
+          subcategory = null;
+        } else if (subcategoria_id && subcategoria_id !== existingProduct.subcategoria?.id) {
+          const newSubcategory = await this.subcategoryRepository.findOne({
+            where: { id: subcategoria_id, categoria: { id: category.id } }
+          });
+          
+          if (!newSubcategory) {
+            res.status(400).json({ message: 'Subcategoría no válida o no pertenece a la categoría especificada' });
+            return;
+          }
+          subcategory = newSubcategory;
+        }
+      }
+
       // Actualizar los campos proporcionados
       if (nombre !== undefined) existingProduct.nombre = nombre;
       if (marca !== undefined) existingProduct.marca = marca;
@@ -256,6 +304,7 @@ export class ProductController {
       if (descripcion !== undefined) existingProduct.descripcion = descripcion;
       if (stock !== undefined) existingProduct.stock = parseInt(stock.toString());
       if (categoria_id !== undefined) existingProduct.categoria = category;
+      if (subcategoria_id !== undefined) existingProduct.subcategoria = subcategory;
 
       // Manejar imagen si se proporciona una nueva
       if (req.file) {

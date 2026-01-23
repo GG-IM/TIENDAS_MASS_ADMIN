@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useUsuario } from '../context/userContext';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:5001';
 
 export default function CheckoutSuccessPage() {
   const { usuario } = useUsuario();

@@ -18,10 +18,10 @@
           "raw": "{\n  \"nombre\": \"Usuario Nuevo\",\n  \"email\": \"nuevo_usuario@example.com\",\n  \"password\": \"Password123\",\n  \"direccion\": \"Calle Principal 123\",\n  \"telefono\": \"1234567890\",\n  \"ciudad\": \"Ciudad Ejemplo\",\n  \"codigoPostal\": \"12345\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/usuarios/register",
+          "raw": "http://localhost:5001/api/usuarios/register",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "usuarios", "register"]
         }
       },
@@ -82,10 +82,10 @@
           "raw": "{\n  \"nombre\": \"Usuario Duplicado\",\n  \"email\": \"nuevo_usuario@example.com\",\n  \"password\": \"Password123\",\n  \"direccion\": \"Calle Principal 123\",\n  \"telefono\": \"1234567890\",\n  \"ciudad\": \"Ciudad Ejemplo\",\n  \"codigoPostal\": \"12345\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/usuarios/register",
+          "raw": "http://localhost:5001/api/usuarios/register",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "usuarios", "register"]
         }
       },
@@ -121,10 +121,10 @@
           "raw": "{\n  \"email\": \"otro_usuario@example.com\",\n  \"password\": \"Password123\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/usuarios/register",
+          "raw": "http://localhost:5001/api/usuarios/register",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "usuarios", "register"]
         }
       },
@@ -160,10 +160,10 @@
           "raw": "{\n  \"nombre\": \"Usuario Sin Email\",\n  \"password\": \"Password123\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/usuarios/register",
+          "raw": "http://localhost:5001/api/usuarios/register",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "usuarios", "register"]
         }
       },
@@ -199,10 +199,10 @@
           "raw": "{\n  \"nombre\": \"Usuario Sin Password\",\n  \"email\": \"sinpassword@example.com\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/usuarios/register",
+          "raw": "http://localhost:5001/api/usuarios/register",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "usuarios", "register"]
         }
       },

@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import './AuthStyles.css';
 import { validateRegisterForm } from '../../utils/validators';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 function RegisterForm({ switchToLogin }) {
   const [formData, setFormData] = useState({

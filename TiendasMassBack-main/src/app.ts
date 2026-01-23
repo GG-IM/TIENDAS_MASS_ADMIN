@@ -10,6 +10,7 @@ import { AppDataSource } from "./config/data-source";
 import usuariosRoutes from "./routes/usuarios.routes";
 import productRoutes from "./routes/productos.routes";
 import categoriRoutes from "./routes/categoria.routes";
+import subcategoriaRoutes from "./routes/subcategoria.routes";
 import pedidoRoutes from "./routes/pedidos.routes";
 import MetodoPagoRoutes from "./routes/metodopago.routes";
 import metodoEnvioRoutes from "./routes/metodoenvio.routes";
@@ -20,14 +21,13 @@ import direccionRoutes from "./routes/direccion.routes";
 import tarjetaUsuarioRoutes from "./routes/tarjeta-usuario.routes";
 import authRoutes from "./routes/auth.routes";
 import setupRoutes from "./routes/setup.routes";
-import tiendaRoutes from "./routes/tienda.routes";
 
 // === MERCADO PAGO ===
 import mpRoutes from "./routes/payments.mp"; // /preference y /preference/health
 import mpWebhook from "./routes/payments.webhook"; // /webhook (GET/POST)
 
 const app = express();
-const PORT = process.env.PORT || 443 || "https://6bcbe0fa91fe.ngrok-free.app";
+const PORT = process.env.PORT || 5001;
 
 // === MIDDLEWARE ===
 app.use(
@@ -61,6 +61,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categorias", categoriRoutes);
+app.use("/api/subcategorias", subcategoriaRoutes);
 app.use("/api/pedidos", pedidoRoutes);
 app.use("/api/metodos-pago", MetodoPagoRoutes);
 app.use("/api/metodos-envio", metodoEnvioRoutes);
@@ -69,8 +70,6 @@ app.use("/api/estados", estadoRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/direcciones", direccionRoutes);
 app.use("/api/tarjetas-usuario", tarjetaUsuarioRoutes);
-//NUEVO PARA TIENDA--JIM
-app.use("/api/tiendas", tiendaRoutes);
 
 app.get("/", (_req, res) => {
   res.send("🚀 Bienvenido a TiendasMass API. Backend corriendo con éxito.");
@@ -128,7 +127,7 @@ AppDataSource.initialize()
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
       console.log(
-        `🌐 BASE_URL: ${process.env.BASE_URL || "http://localhost:5000"}`
+        `🌐 BASE_URL: ${process.env.BASE_URL || "http://localhost:5001"}`
       );
       console.log(`✅ Rutas disponibles:`);
       console.log(`   - GET  /health`);

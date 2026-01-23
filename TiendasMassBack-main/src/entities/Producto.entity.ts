@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
 import { Categoria } from "./Categoria.entity";
+import { Subcategoria } from "./Subcategoria.entity";
 import { Estado } from "./Estado.entity";
 import { DetallePedido } from "./DetallePedido.entity";
 import { Reporte } from "./Reportes.entity";
@@ -29,6 +30,9 @@ export class Producto {
 
   @ManyToOne(() => Categoria, categoria => categoria.productos)
   categoria: Categoria;
+
+  @ManyToOne(() => Subcategoria, subcategoria => subcategoria.productos, { nullable: true })
+  subcategoria: Subcategoria;
 
   @ManyToOne(() => Estado, estado => estado.productos)
   estado: Estado;

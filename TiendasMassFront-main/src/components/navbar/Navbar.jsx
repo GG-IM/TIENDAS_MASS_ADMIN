@@ -5,7 +5,7 @@ import { useCarrito } from '../../context/carContext';
 import Carrito from '../car/Carrito';
 import './navbar.css';
 import logo from '../../assets/logo.png';
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 // Componente SearchBar separado
 const SearchBar = ({ 

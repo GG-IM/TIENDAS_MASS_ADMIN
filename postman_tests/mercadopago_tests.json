@@ -30,10 +30,10 @@
           "raw": "{\n  \"orderId\": \"1\",\n  \"payerEmail\": \"test@example.com\",\n  \"items\": [\n    {\n      \"title\": \"Producto Test\",\n      \"quantity\": 2,\n      \"unit_price\": 99.99\n    }\n  ]\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/payments/mp/preference",
+          "raw": "http://localhost:5001/api/payments/mp/preference",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "payments", "mp", "preference"]
         }
       },
@@ -79,10 +79,10 @@
           "raw": "{\n  \"orderId\": \"2\",\n  \"payerEmail\": \"test@example.com\",\n  \"items\": []\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/payments/mp/preference",
+          "raw": "http://localhost:5001/api/payments/mp/preference",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "payments", "mp", "preference"]
         }
       },
@@ -117,10 +117,10 @@
           "raw": "{\n  \"orderId\": \"3\",\n  \"payerEmail\": \"test@example.com\",\n  \"items\": [\n    {\n      \"title\": \"Producto Gratis\",\n      \"quantity\": 1,\n      \"unit_price\": 0\n    }\n  ]\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/payments/mp/preference",
+          "raw": "http://localhost:5001/api/payments/mp/preference",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "payments", "mp", "preference"]
         }
       },
@@ -155,10 +155,10 @@
           "raw": "{\n  \"action\": \"payment.updated\",\n  \"api_version\": \"v1\",\n  \"data\": {\n    \"id\": \"{{paymentId}}\"\n  },\n  \"date_created\": \"2025-01-01T12:00:00Z\",\n  \"id\": 12345,\n  \"live_mode\": false,\n  \"type\": \"payment\",\n  \"user_id\": \"123456789\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/payments/mp/webhook?type=payment&id={{paymentId}}",
+          "raw": "http://localhost:5001/api/payments/mp/webhook?type=payment&id={{paymentId}}",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "payments", "mp", "webhook"],
           "query": [
             {
@@ -198,10 +198,10 @@
           "raw": "{}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/payments/mp/webhook?type=plan&id=123",
+          "raw": "http://localhost:5001/api/payments/mp/webhook?type=plan&id=123",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "payments", "mp", "webhook"],
           "query": [
             {
@@ -241,10 +241,10 @@
           "raw": "{\n  \"orderId\": \"4\",\n  \"payerEmail\": \"cliente@test.com\",\n  \"items\": [\n    {\n      \"title\": \"Producto 1\",\n      \"quantity\": 2,\n      \"unit_price\": 50.00\n    },\n    {\n      \"title\": \"Producto 2\",\n      \"quantity\": 1,\n      \"unit_price\": 75.50\n    },\n    {\n      \"title\": \"Producto 3\",\n      \"quantity\": 3,\n      \"unit_price\": 25.99\n    }\n  ]\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/payments/mp/preference",
+          "raw": "http://localhost:5001/api/payments/mp/preference",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "payments", "mp", "preference"]
         }
       },

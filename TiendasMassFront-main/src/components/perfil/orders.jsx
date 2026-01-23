@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useUsuario } from '../../context/userContext'; // Asegúrate de tener este contexto
 import './styleperfil.css';
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 const Orders = () => {
   const { usuario } = useUsuario();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -24,10 +23,6 @@ const Orders = () => {
           items: p.detallesPedidos,
           total: parseFloat(p.montoTotal),
           status: p.estado.charAt(0).toUpperCase() + p.estado.slice(1),
-          cantidadProductos: p.cantidadProductos || p.detallesPedidos?.length || 0,
-          tipoEnvio: p.tipoEnvio,
-          direccion: p.direccionEnvio || "No especificada",
-          infoPedido: p.infoPedido
         }));
 
         setOrders(pedidosFormateados);
@@ -45,10 +40,6 @@ const Orders = () => {
 
   const totalGastado = orders.reduce((acc, o) => acc + parseFloat(o.total), 0).toFixed(2);
   const pedidosEnProceso = orders.filter(o => o.status === 'En Proceso').length;
-
-  const toggleOrderDetails = (orderId) => {
-    setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
-  };
 
   return (
     <div className="orders-section">
@@ -86,26 +77,7 @@ const Orders = () => {
                 <div className="order-info">
                   <div className="order-id">Pedido #{order.id}</div>
                   <div className="order-date">{new Date(order.fecha).toLocaleDateString()}</div>
-                  <div className="order-items">{order.cantidadProductos} productos</div>
-                  <button 
-                    className="order-details-link"
-                    onClick={() => toggleOrderDetails(order.id)}
-                  >
-                    Ver más detalles...
-                  </button>
-                  
-                  {expandedOrderId === order.id && (
-                    <div className="order-expanded-details">
-                      <div className="detail-item">
-                        <span className="detail-label">Tipo de envío:</span>
-                        <span className="detail-value">{order.infoPedido?.tipoEnvio || order.tipoEnvio}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Dirección de entrega:</span>
-                        <span className="detail-value">{order.infoPedido?.direccionEntrega || order.direccion}</span>
-                      </div>
-                    </div>
-                  )}
+                  <div className="order-items">{order.items.length} productos</div>
                 </div>
                 <div className="order-status-section">
                   <span className={`order-status status-${order.status.toLowerCase().replace(/\s/g, '-')}`}>

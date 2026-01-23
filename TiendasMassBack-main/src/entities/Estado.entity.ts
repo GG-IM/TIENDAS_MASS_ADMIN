@@ -3,6 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, Up
 import { Usuario } from "./Usuario.entity";
 import { Producto } from "./Producto.entity";
 import { Categoria } from "./Categoria.entity";
+import { Subcategoria } from "./Subcategoria.entity";
 
 @Entity("Estados")
 export class Estado {
@@ -38,4 +39,7 @@ export class Estado {
 
   @OneToMany(() => Categoria, (categoria) => categoria.estado)
   categorias: Categoria[];
+
+  @OneToMany(() => Subcategoria, (subcategoria) => subcategoria.estado)
+  subcategorias: Subcategoria[];
 }

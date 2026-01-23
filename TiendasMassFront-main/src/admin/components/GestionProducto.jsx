@@ -17,8 +17,9 @@ import {
   formatStock,
   validateImageDimensions
 } from '../../utils/productosvalidaciones';
+import SubcategoriaSelector from '../../components/SubcategoriaSelector';
 //import { mockProducts, mockCategories } from '../../data/mockData.jsx';
-const URL = "http://localhost:5000";
+const URL = "http://localhost:5001";
 const ProductManager = () => {
 
   const API_URL = `${URL}/api/products`;
@@ -70,6 +71,7 @@ const ProductManager = () => {
     descripcion: '',
     precio: '',
     categoriaId: '',
+    subcategoriaId: '',
     stock: '',
     marca: '',
     imagen: null,
@@ -109,6 +111,7 @@ const ProductManager = () => {
       marca: product.marca || '',
       imagen: null,
       categoriaId: product.categoria?.id?.toString() || '',
+      subcategoriaId: product.subcategoriaId?.toString() || '',
       estado: product.estado?.nombre === 'Activo',
     });
     setShowModal(true);
@@ -121,6 +124,7 @@ const ProductManager = () => {
       descripcion: '',
       precio: '',
       categoriaId: '',
+      subcategoriaId: '',
       stock: '',
       marca: '',
       imagen: null,
@@ -235,6 +239,7 @@ const ProductManager = () => {
     form.append('stock', formatStock(formData.stock));
     form.append('marca', formData.marca.trim() || '');
     form.append('categoria_id', formData.categoriaId);
+    form.append('subcategoria_id', formData.subcategoriaId || '');
     form.append('estado', formData.estado.toString());
 
     if (formData.imagen) {
@@ -454,6 +459,7 @@ const ProductManager = () => {
                 <th>Imagen</th>
                 <th>Nombre</th>
                 <th>Categoría</th>
+                <th>Subcategoría</th>
                 <th>Precio</th>
                 <th>Stock</th>
                 <th>Estado</th>
@@ -489,6 +495,15 @@ const ProductManager = () => {
                     </div>
                   </td>
                   <td>{product.categoria ? product.categoria.nombre : 'Sin categoría'}</td>
+                  <td>
+                    {product.subcategoria ? (
+                      <span className="badge badge-info" style={{ backgroundColor: '#0dcaf0', color: 'black' }}>
+                        {product.subcategoria.nombre}
+                      </span>
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
                   <td><strong>${Number(product.precio).toFixed(2)}</strong></td>
                   <td>
                     <span className={`badge ${product.stock > 20 ? 'badge-success' : product.stock > 5 ? 'badge-warning' : 'badge-danger'}`}>
@@ -612,7 +627,10 @@ const ProductManager = () => {
                         <select
                           className={`form-select ${errors.categoriaId ? 'input-error' : ''}`}
                           value={formData.categoriaId}
-                          onChange={(e) => handleFieldChange('categoriaId', e.target.value)}
+                          onChange={(e) => {
+                            handleFieldChange('categoriaId', e.target.value);
+                            setFormData({ ...formData, categoriaId: e.target.value, subcategoriaId: '' });
+                          }}
                           required
                           disabled={loading}
                         >
@@ -631,9 +649,18 @@ const ProductManager = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="row">
-                    <div className="col-md-12">
+                    <div className="col-md-6">
+                      <SubcategoriaSelector 
+                        categoriaId={formData.categoriaId}
+                        subcategoriaId={formData.subcategoriaId}
+                        onChange={(subcategoriaId) => setFormData({ ...formData, subcategoriaId })}
+                        disabled={loading}
+                        className="form-group"
+                      />
+                    </div>
+                    <div className="col-md-6">
                       <div className="form-group">
                         <label className="form-label">Marca</label>
                         <input

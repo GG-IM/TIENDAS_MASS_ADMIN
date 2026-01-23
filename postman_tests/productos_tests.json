@@ -19,10 +19,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/products",
+          "raw": "http://localhost:5001/api/products",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products"]
         }
       },
@@ -67,10 +67,10 @@
           "raw": "{\n  \"nombre\": \"Producto Test\",\n  \"marca\": \"Marca Test\",\n  \"precio\": 99.99,\n  \"descripcion\": \"Descripción del producto de prueba\",\n  \"stock\": 50,\n  \"estado\": true,\n  \"categoria_id\": 1\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/products",
+          "raw": "http://localhost:5001/api/products",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products"]
         }
       },
@@ -119,10 +119,10 @@
           "raw": "{\n  \"nombre\": \"Producto Incompleto\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/products",
+          "raw": "http://localhost:5001/api/products",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products"]
         }
       },
@@ -152,10 +152,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/products/{{productId}}",
+          "raw": "http://localhost:5001/api/products/{{productId}}",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products", "{{productId}}"]
         }
       },
@@ -193,10 +193,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/products/99999",
+          "raw": "http://localhost:5001/api/products/99999",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products", "99999"]
         }
       },
@@ -232,10 +232,10 @@
           "raw": "{\n  \"nombre\": \"Producto Actualizado\",\n  \"precio\": 149.99,\n  \"stock\": 75\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/products/{{productId}}",
+          "raw": "http://localhost:5001/api/products/{{productId}}",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products", "{{productId}}"]
         }
       },
@@ -266,10 +266,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/products?categoriaId=1",
+          "raw": "http://localhost:5001/api/products?categoriaId=1",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products"],
           "query": [
             {
@@ -304,10 +304,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/products?q=test",
+          "raw": "http://localhost:5001/api/products?q=test",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products"],
           "query": [
             {
@@ -342,10 +342,10 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/products/{{productId}}",
+          "raw": "http://localhost:5001/api/products/{{productId}}",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "products", "{{productId}}"]
         }
       },

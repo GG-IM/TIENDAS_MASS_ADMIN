@@ -3,7 +3,7 @@ import { ShoppingCart, Plus, Minus } from 'lucide-react';
 import { useCarrito } from '../../context/carContext';
 import './detalleproducto.css';
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 const categoriaColors = {
   1: '#33DDC8',

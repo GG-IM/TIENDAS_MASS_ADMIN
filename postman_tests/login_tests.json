@@ -18,10 +18,10 @@
           "raw": "{\n  \"email\": \"nuevo_usuario@example.com\",\n  \"password\": \"Password123\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/auth/login",
+          "raw": "http://localhost:5001/api/auth/login",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "auth", "login"]
         }
       },
@@ -78,10 +78,10 @@
           "raw": "{\n  \"email\": \"nuevo_usuario@example.com\",\n  \"password\": \"wrongpassword\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/auth/login",
+          "raw": "http://localhost:5001/api/auth/login",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "auth", "login"]
         }
       },
@@ -117,10 +117,10 @@
           "raw": "{\n  \"email\": \"noexiste@example.com\",\n  \"password\": \"password123\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/auth/login",
+          "raw": "http://localhost:5001/api/auth/login",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "auth", "login"]
         }
       },
@@ -156,10 +156,10 @@
           "raw": "{\n  \"password\": \"password123\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/auth/login",
+          "raw": "http://localhost:5001/api/auth/login",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "auth", "login"]
         }
       },
@@ -195,10 +195,10 @@
           "raw": "{\n  \"email\": \"nuevo_usuario@example.com\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/auth/login",
+          "raw": "http://localhost:5001/api/auth/login",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "auth", "login"]
         }
       },
