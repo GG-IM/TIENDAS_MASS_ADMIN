@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, JoinTable } from "typeorm";
 import { Categoria } from "./Categoria.entity";
 import { Subcategoria } from "./Subcategoria.entity";
 import { Estado } from "./Estado.entity";
@@ -31,8 +31,13 @@ export class Producto {
   @ManyToOne(() => Categoria, categoria => categoria.productos)
   categoria: Categoria;
 
-  @ManyToOne(() => Subcategoria, subcategoria => subcategoria.productos, { nullable: true })
-  subcategoria: Subcategoria;
+  @ManyToMany(() => Subcategoria, subcategoria => subcategoria.productos, { cascade: ['insert', 'update'], eager: false })
+  @JoinTable({
+    name: 'Producto_Subcategoria',
+    joinColumn: { name: 'productoId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'subcategoriaId', referencedColumnName: 'id' }
+  })
+  subcategorias: Subcategoria[];
 
   @ManyToOne(() => Estado, estado => estado.productos)
   estado: Estado;

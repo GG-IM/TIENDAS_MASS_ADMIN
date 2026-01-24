@@ -3,7 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { Categoria } from './Categoria.entity';
 import { Producto } from './Producto.entity';
@@ -23,7 +23,7 @@ export class Subcategoria {
   @ManyToOne(() => Categoria, categoria => categoria.subcategorias)
   categoria: Categoria;
 
-  @OneToMany(() => Producto, producto => producto.subcategoria, { nullable: true })
+  @ManyToMany(() => Producto, producto => producto.subcategorias)
   productos: Producto[];
 
   @ManyToOne(() => Estado, estado => estado.subcategorias)

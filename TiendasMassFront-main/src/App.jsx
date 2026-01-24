@@ -15,6 +15,7 @@ import DetalleProducto from './components/productos/detalleproductomodal';
 import Admin from './pages/admin';
 import Dashboard from './admin/components/Dashboard';
 import GestionCategorias from './admin/components/GestionCategorias';
+import GestionSubcategorias from './admin/components/GestionSubcategorias';
 import GestionEstados from './admin/components/GestionEstados';
 import GestionMetodoPago from './admin/components/GestionMetodoPago';
 import GestionProducto from './admin/components/GestionProducto';
@@ -51,6 +52,7 @@ function App() {
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="categorias" element={<GestionCategorias />} />
+              <Route path="subcategorias" element={<GestionSubcategorias />} />
               <Route path="estados" element={<GestionEstados />} />
               <Route path="metodos-pago" element={<GestionMetodoPago />} />
               <Route path="productos" element={<GestionProducto />} />

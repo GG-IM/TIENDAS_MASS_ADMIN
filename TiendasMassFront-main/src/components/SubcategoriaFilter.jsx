@@ -7,16 +7,14 @@ const API_URL = 'http://localhost:5001/api';
  * Componente para filtrar productos por subcategoría
  * Se muestra cuando una categoría tiene subcategorías
  */
-const SubcategoriaFilter = ({ categoriaId, onSubcategoriaSelect }) => {
+const SubcategoriaFilter = ({ categoriaId, onSubcategoriaSelect, selectedSubcategoria = '' }) => {
   const [subcategorias, setSubcategorias] = useState([]);
-  const [selectedSubcategoria, setSelectedSubcategoria] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Cargar subcategorías cuando cambia la categoría
   useEffect(() => {
     if (categoriaId) {
       setLoading(true);
-      setSelectedSubcategoria('');
       axios
         .get(`${API_URL}/subcategorias/categoria/${categoriaId}`)
         .then(res => {
@@ -29,17 +27,14 @@ const SubcategoriaFilter = ({ categoriaId, onSubcategoriaSelect }) => {
         .finally(() => setLoading(false));
     } else {
       setSubcategorias([]);
-      setSelectedSubcategoria('');
     }
   }, [categoriaId]);
 
   const handleSelect = (subcategoriaId) => {
-    setSelectedSubcategoria(subcategoriaId);
     onSubcategoriaSelect(subcategoriaId);
   };
 
   const handleClear = () => {
-    setSelectedSubcategoria('');
     onSubcategoriaSelect('');
   };
 
@@ -71,6 +66,8 @@ const SubcategoriaFilter = ({ categoriaId, onSubcategoriaSelect }) => {
             {subcategorias.map(subcategoria => (
               <button
                 key={subcategoria.id}
+                id={`subcategoria-${subcategoria.id}`}
+                name={`subcategoria-filter-${subcategoria.id}`}
                 onClick={() => handleSelect(subcategoria.id)}
                 style={{
                   padding: '0.5rem 1rem',
@@ -89,6 +86,8 @@ const SubcategoriaFilter = ({ categoriaId, onSubcategoriaSelect }) => {
             ))}
             {selectedSubcategoria && (
               <button
+                id="clear-subcategoria-filter"
+                name="clear-subcategoria-filter"
                 onClick={handleClear}
                 style={{
                   padding: '0.5rem 1rem',

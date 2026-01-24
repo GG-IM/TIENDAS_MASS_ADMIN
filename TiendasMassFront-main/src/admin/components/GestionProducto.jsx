@@ -18,6 +18,7 @@ import {
   validateImageDimensions
 } from '../../utils/productosvalidaciones';
 import SubcategoriaSelector from '../../components/SubcategoriaSelector';
+import SubcategoriasMultiples from '../../components/SubcategoriasMultiples';
 //import { mockProducts, mockCategories } from '../../data/mockData.jsx';
 const URL = "http://localhost:5001";
 const ProductManager = () => {
@@ -71,7 +72,7 @@ const ProductManager = () => {
     descripcion: '',
     precio: '',
     categoriaId: '',
-    subcategoriaId: '',
+    subcategoriaIds: [], // Cambiar a array
     stock: '',
     marca: '',
     imagen: null,
@@ -111,7 +112,7 @@ const ProductManager = () => {
       marca: product.marca || '',
       imagen: null,
       categoriaId: product.categoria?.id?.toString() || '',
-      subcategoriaId: product.subcategoriaId?.toString() || '',
+      subcategoriaIds: product.subcategoria_ids || [], // Cambiar a array
       estado: product.estado?.nombre === 'Activo',
     });
     setShowModal(true);
@@ -124,7 +125,7 @@ const ProductManager = () => {
       descripcion: '',
       precio: '',
       categoriaId: '',
-      subcategoriaId: '',
+      subcategoriaIds: [], // Cambiar a array
       stock: '',
       marca: '',
       imagen: null,
@@ -239,7 +240,14 @@ const ProductManager = () => {
     form.append('stock', formatStock(formData.stock));
     form.append('marca', formData.marca.trim() || '');
     form.append('categoria_id', formData.categoriaId);
-    form.append('subcategoria_id', formData.subcategoriaId || '');
+    
+    // Enviar múltiples subcategorías
+    if (Array.isArray(formData.subcategoriaIds) && formData.subcategoriaIds.length > 0) {
+      form.append('subcategoria_ids', JSON.stringify(formData.subcategoriaIds));
+    } else {
+      form.append('subcategoria_ids', JSON.stringify([]));
+    }
+    
     form.append('estado', formData.estado.toString());
 
     if (formData.imagen) {
@@ -496,10 +504,14 @@ const ProductManager = () => {
                   </td>
                   <td>{product.categoria ? product.categoria.nombre : 'Sin categoría'}</td>
                   <td>
-                    {product.subcategoria ? (
-                      <span className="badge badge-info" style={{ backgroundColor: '#0dcaf0', color: 'black' }}>
-                        {product.subcategoria.nombre}
-                      </span>
+                    {product.subcategoria_ids && product.subcategoria_ids.length > 0 ? (
+                      <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                        {product.subcategorias && product.subcategorias.map((sub) => (
+                          <span key={sub.id} className="badge badge-info" style={{ backgroundColor: '#0dcaf0', color: 'black' }}>
+                            {sub.nombre}
+                          </span>
+                        ))}
+                      </div>
                     ) : (
                       <span className="text-muted">-</span>
                     )}
@@ -629,7 +641,7 @@ const ProductManager = () => {
                           value={formData.categoriaId}
                           onChange={(e) => {
                             handleFieldChange('categoriaId', e.target.value);
-                            setFormData({ ...formData, categoriaId: e.target.value, subcategoriaId: '' });
+                            setFormData({ ...formData, categoriaId: e.target.value, subcategoriaIds: [] });
                           }}
                           required
                           disabled={loading}
@@ -651,15 +663,18 @@ const ProductManager = () => {
                   </div>
 
                   <div className="row">
-                    <div className="col-md-6">
-                      <SubcategoriaSelector 
+                    <div className="col-md-12">
+                      <SubcategoriasMultiples 
                         categoriaId={formData.categoriaId}
-                        subcategoriaId={formData.subcategoriaId}
-                        onChange={(subcategoriaId) => setFormData({ ...formData, subcategoriaId })}
+                        selectedIds={formData.subcategoriaIds}
+                        onChange={(subcategoriaIds) => setFormData({ ...formData, subcategoriaIds })}
                         disabled={loading}
-                        className="form-group"
+                        showLabel={true}
                       />
                     </div>
+                  </div>
+
+                  <div className="row">
                     <div className="col-md-6">
                       <div className="form-group">
                         <label className="form-label">Marca</label>

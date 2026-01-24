@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../config/data-source";
 import { Subcategoria } from "../entities/Subcategoria.entity";
 import { Categoria } from "../entities/Categoria.entity";
+import { Estado } from "../entities/Estado.entity";
 
 export const getAllSubcategories = async (
   req: Request,
@@ -168,8 +169,10 @@ export const updateSubcategory = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const { nombre, descripcion, estado } = req.body;
+    const { nombre, descripcion, estado, categoriaId } = req.body;
     const subcategoryRepository = AppDataSource.getRepository(Subcategoria);
+    const estadoRepository = AppDataSource.getRepository(Estado);
+    const categoriaRepository = AppDataSource.getRepository(Categoria);
 
     const subcategory = await subcategoryRepository.findOne({
       where: { id: parseInt(id) },
@@ -191,18 +194,42 @@ export const updateSubcategory = async (
       subcategory.descripcion = descripcion?.trim() || null;
     }
 
+    // Actualizar categoría si se proporciona
+    if (categoriaId !== undefined && categoriaId !== null) {
+      const categoria = await categoriaRepository.findOne({
+        where: { id: parseInt(categoriaId) }
+      });
+      if (!categoria) {
+        res.status(400).json({ message: "Categoría no válida" });
+        return;
+      }
+      subcategory.categoria = categoria;
+    }
+
     // Actualizar estado si se proporciona
     if (estado !== undefined && estado !== null) {
+      let estadoId: number;
       if (typeof estado === "boolean") {
-        subcategory.estado = { id: estado ? 1 : 2 } as any;
+        estadoId = estado ? 1 : 2;
       } else if (estado === "true" || estado === "false") {
-        subcategory.estado = { id: estado === "true" ? 1 : 2 } as any;
+        estadoId = estado === "true" ? 1 : 2;
       } else if (!isNaN(parseInt(estado))) {
-        subcategory.estado = { id: parseInt(estado) } as any;
+        estadoId = parseInt(estado);
+      } else {
+        estadoId = subcategory.estado?.id || 1;
+      }
+
+      const estadoEntity = await estadoRepository.findOne({
+        where: { id: estadoId }
+      });
+      if (estadoEntity) {
+        subcategory.estado = estadoEntity;
       }
     }
 
+    console.log(`📝 Actualizando subcategoría ${id}:`, { nombre, descripcion, categoriaId, estado });
     const updatedSubcategory = await subcategoryRepository.save(subcategory);
+    console.log(`✅ Subcategoría actualizada`);
 
     // Recargar con relaciones
     const subcategoryWithRelations = await subcategoryRepository.findOne({
@@ -210,6 +237,7 @@ export const updateSubcategory = async (
       relations: ["productos", "estado", "categoria"],
     });
 
+    console.log(`✅ Subcategoría recargada:`, subcategoryWithRelations);
     res.json(subcategoryWithRelations);
   } catch (error) {
     const errorMessage =

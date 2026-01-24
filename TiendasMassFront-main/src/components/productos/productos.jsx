@@ -46,6 +46,11 @@ const Productos = ({ categoriaId,onProductClick }) => {
     fetchProductos();
   }, [categoriaId, subcategoriaId]);
 
+  // Resetear subcategoría cuando cambia la categoría
+  useEffect(() => {
+    setSubcategoriaId('');
+  }, [categoriaId]);
+
   const handleAgregar = (productoConCantidad) => {
     agregarProducto(productoConCantidad);
 
@@ -69,6 +74,7 @@ const Productos = ({ categoriaId,onProductClick }) => {
       <SubcategoriaFilter 
         categoriaId={categoriaId}
         onSubcategoriaSelect={setSubcategoriaId}
+        selectedSubcategoria={subcategoriaId}
       />
 
       {productos.length === 0 && !loading && (

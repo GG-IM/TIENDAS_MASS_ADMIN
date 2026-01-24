@@ -15,7 +15,7 @@ interface ProductCreateRequest {
   stock?: number;
   estado?: boolean;
   categoria_id: number;
-  subcategoria_id?: number;
+  subcategoria_ids?: number[]; // Ahora es un array
 }
 
 interface ProductUpdateRequest {
@@ -27,7 +27,7 @@ interface ProductUpdateRequest {
   stock?: number;
   estado?: boolean;
   categoria_id?: number;
-  subcategoria_id?: number;
+  subcategoria_ids?: number[]; // Ahora es un array
 }
 
 interface MulterRequest extends Request {
@@ -51,10 +51,10 @@ export class ProductController {
   private normalizeProduct = (product: Producto) => {
     return {
       ...product,
-      precio: Number(product.precio), // Asegurar que sea número
-      stock: Number(product.stock),   // Asegurar que sea número
+      precio: Number(product.precio),
+      stock: Number(product.stock),
       categoria_id: product.categoria?.id,
-      subcategoria_id: product.subcategoria?.id || null,
+      subcategoria_ids: product.subcategorias?.map(s => s.id) || [],
       estado_nombre: product.estado?.nombre
     };
   };
@@ -69,8 +69,9 @@ export class ProductController {
       // Usamos QueryBuilder para búsquedas flexibles
       const baseQuery = this.productRepository
         .createQueryBuilder('producto')
+        .distinct(true)
         .leftJoinAndSelect('producto.categoria', 'categoria')
-        .leftJoinAndSelect('producto.subcategoria', 'subcategoria')
+        .leftJoinAndSelect('producto.subcategorias', 'subcategorias')
         .leftJoinAndSelect('producto.estado', 'estado');
 
       if (categoriaId) {
@@ -78,7 +79,7 @@ export class ProductController {
       }
 
       if (subcategoriaId) {
-        baseQuery.andWhere('subcategoria.id = :subcategoriaId', { subcategoriaId: parseInt(subcategoriaId) });
+        baseQuery.andWhere('subcategorias.id = :subcategoriaId', { subcategoriaId: parseInt(subcategoriaId) });
       }
 
       if (searchQuery) {
@@ -111,7 +112,7 @@ export class ProductController {
 
       const product = await this.productRepository.findOne({
         where: { id },
-        relations: ['categoria', 'estado']
+        relations: ['categoria', 'subcategorias', 'estado']
       });
 
       if (!product) {
@@ -139,8 +140,18 @@ export class ProductController {
         stock = 0, 
         estado = true, 
         categoria_id,
-        subcategoria_id
-      }: ProductCreateRequest = req.body;
+        subcategoria_ids: subcategoria_idsRaw = '[]'
+      } = req.body;
+
+      // Parsear subcategoria_ids si es string JSON
+      let subcategoria_ids: number[] = [];
+      try {
+        subcategoria_ids = typeof subcategoria_idsRaw === 'string' 
+          ? JSON.parse(subcategoria_idsRaw) 
+          : (Array.isArray(subcategoria_idsRaw) ? subcategoria_idsRaw : []);
+      } catch (e) {
+        subcategoria_ids = [];
+      }
 
       // Validaciones básicas
       if (!nombre || !precio || !categoria_id) {
@@ -160,26 +171,28 @@ export class ProductController {
         return;
       }
 
-      // Validar subcategoría si se proporciona
-      let subcategory = null;
-      if (subcategoria_id) {
-        subcategory = await this.subcategoryRepository.findOne({
-          where: { id: subcategoria_id, categoria: { id: categoria_id } }
+      // Validar subcategorías si se proporcionan
+      let subcategories: Subcategoria[] = [];
+      if (Array.isArray(subcategoria_ids) && subcategoria_ids.length > 0) {
+        subcategories = await this.subcategoryRepository.find({
+          where: { 
+            id: In(subcategoria_ids),
+            categoria: { id: categoria_id }
+          }
         });
-        
-        if (!subcategory) {
-          res.status(400).json({ message: 'Subcategoría no válida o no pertenece a la categoría especificada' });
+
+        if (subcategories.length !== subcategoria_ids.length) {
+          res.status(400).json({ message: 'Una o más subcategorías no son válidas o no pertenecen a la categoría especificada' });
           return;
         }
       }
 
-      // Buscar estado activo o inactivo según el valor recibido
+      // Buscar estado
       const estadoNombre = estado ? 'Activo' : 'Inactivo';
       let estadoEntity = await this.estadoRepository.findOne({
         where: { nombre: estadoNombre }
       });
 
-      // Si no existe el estado específico, buscar cualquier estado disponible
       if (!estadoEntity) {
         console.log(`⚠️ Estado "${estadoNombre}" no encontrado, buscando estados disponibles...`);
         estadoEntity = await this.estadoRepository.findOne({});
@@ -192,7 +205,7 @@ export class ProductController {
         console.log(`✅ Estado encontrado: ${estadoEntity.nombre}`);
       }
 
-      // Si hay imagen cargada, construir ruta; si no, dejar vacío
+      // Si hay imagen cargada
       const imagen = req.file ? `uploads/productos/${req.file.filename}` : '';
 
       // Crear el producto
@@ -204,28 +217,32 @@ export class ProductController {
         imagen,
         stock: parseInt(stock.toString()),
         categoria: category,
-        subcategoria: subcategory,
         estado: estadoEntity
       });
 
       const savedProduct = await this.productRepository.save(newProduct);
-
-      // Respuesta con tipos correctos
-      res.status(201).json({
-        id: savedProduct.id,
-        nombre: savedProduct.nombre,
-        marca: savedProduct.marca,
-        precio: Number(savedProduct.precio), // Forzar como número
-        descripcion: savedProduct.descripcion,
-        imagen: savedProduct.imagen,
-        stock: Number(savedProduct.stock),   // Forzar como número
-        categoria_id: category.id,
-        subcategoria_id: subcategory?.id || null,
-        categoria: category,
-        subcategoria: subcategory,
-        estado: estadoEntity,
-        estado_nombre: estadoEntity.nombre
+      
+      // Agregar subcategorías usando QueryBuilder
+      if (subcategories.length > 0) {
+        console.log(`📝 Agregando subcategorías al nuevo producto ${savedProduct.id}:`, subcategoria_ids);
+        
+        await this.productRepository
+          .createQueryBuilder()
+          .relation(Producto, 'subcategorias')
+          .of(savedProduct.id)
+          .add(subcategories);
+        
+        console.log(`✅ Subcategorías agregadas en la base de datos`);
+      }
+      
+      // Recargar para obtener todas las relaciones
+      const fullProduct = await this.productRepository.findOne({
+        where: { id: savedProduct.id },
+        relations: ['categoria', 'subcategorias', 'estado']
       });
+
+      console.log(`✅ Producto creado con subcategorías:`, fullProduct?.subcategorias?.map(s => ({ id: s.id, nombre: s.nombre })));
+      res.status(201).json(this.normalizeProduct(fullProduct!));
     } catch (error) {
       console.error('Error en createProduct:', error);
       res.status(500).json({ 
@@ -251,13 +268,24 @@ export class ProductController {
         stock = 0, 
         estado = true, 
         categoria_id,
-        subcategoria_id
-      }: ProductUpdateRequest = req.body;
+        subcategoria_ids: subcategoria_idsRaw = '[]'
+      } = req.body;
+
+      // Parsear subcategoria_ids si es string JSON
+      let subcategoria_ids: number[] = [];
+      try {
+        subcategoria_ids = typeof subcategoria_idsRaw === 'string' 
+          ? JSON.parse(subcategoria_idsRaw) 
+          : (Array.isArray(subcategoria_idsRaw) ? subcategoria_idsRaw : []);
+      } catch (e) {
+        console.warn('⚠️ Error parsing subcategoria_ids:', e);
+        subcategoria_ids = [];
+      }
 
       // Buscar el producto existente
       const existingProduct = await this.productRepository.findOne({
         where: { id },
-        relations: ['categoria', 'subcategoria', 'estado']
+        relations: ['categoria', 'subcategorias', 'estado']
       });
 
       if (!existingProduct) {
@@ -279,21 +307,24 @@ export class ProductController {
         category = newCategory;
       }
 
-      // Validar si la subcategoría existe (si se proporciona)
-      let subcategory = existingProduct.subcategoria;
-      if (subcategoria_id !== undefined) {
-        if (subcategoria_id === null) {
-          subcategory = null;
-        } else if (subcategoria_id && subcategoria_id !== existingProduct.subcategoria?.id) {
-          const newSubcategory = await this.subcategoryRepository.findOne({
-            where: { id: subcategoria_id, categoria: { id: category.id } }
+      // Validar si las subcategorías existen (si se proporcionan)
+      let subcategories: Subcategoria[] = existingProduct.subcategorias || [];
+      if (subcategoria_ids !== undefined && Array.isArray(subcategoria_ids)) {
+        if (subcategoria_ids.length > 0) {
+          subcategories = await this.subcategoryRepository.find({
+            where: { 
+              id: In(subcategoria_ids),
+              categoria: { id: category.id }
+            }
           });
-          
-          if (!newSubcategory) {
-            res.status(400).json({ message: 'Subcategoría no válida o no pertenece a la categoría especificada' });
+
+          if (subcategories.length !== subcategoria_ids.length) {
+            res.status(400).json({ message: 'Una o más subcategorías no son válidas o no pertenecen a la categoría especificada' });
             return;
           }
-          subcategory = newSubcategory;
+        } else {
+          // Limpiar subcategorías si se envía un array vacío
+          subcategories = [];
         }
       }
 
@@ -304,8 +335,7 @@ export class ProductController {
       if (descripcion !== undefined) existingProduct.descripcion = descripcion;
       if (stock !== undefined) existingProduct.stock = parseInt(stock.toString());
       if (categoria_id !== undefined) existingProduct.categoria = category;
-      if (subcategoria_id !== undefined) existingProduct.subcategoria = subcategory;
-
+      
       // Manejar imagen si se proporciona una nueva
       if (req.file) {
         existingProduct.imagen = `uploads/productos/${req.file.filename}`;
@@ -315,23 +345,17 @@ export class ProductController {
       if (estado !== undefined && estado !== null) {
         let estadoId: number;
         
-        // Manejar diferentes tipos de entrada para estado
         if (typeof estado === 'boolean') {
-          // Boolean: true = 1 (Activo), false = 2 (Inactivo)
           estadoId = estado ? 1 : 2;
         } else if (estado === 'true' || estado === 'false') {
-          // String boolean
           estadoId = estado === 'true' ? 1 : 2;
         } else if (!isNaN(parseInt(estado.toString()))) {
-          // Número o string numérico
           estadoId = parseInt(estado.toString());
         } else {
-          // Valor inválido, mantener estado actual
           console.log(`⚠️ Valor de estado inválido: ${estado}, manteniendo estado actual`);
           estadoId = existingProduct.estado.id;
         }
         
-        // Buscar el estado por ID
         const estadoEntity = await this.estadoRepository.findOne({
           where: { id: estadoId }
         });
@@ -344,22 +368,47 @@ export class ProductController {
         }
       }
 
-      const updatedProduct = await this.productRepository.save(existingProduct);
+      // Guardar los cambios básicos del producto
+      console.log(`📝 Guardando producto ${id}...`);
+      const savedProduct = await this.productRepository.save(existingProduct);
+      console.log(`✅ Producto guardado, ID: ${savedProduct.id}`);
 
-      // Respuesta con tipos correctos
-      res.json({
-        id: updatedProduct.id,
-        nombre: updatedProduct.nombre,
-        marca: updatedProduct.marca,
-        precio: Number(updatedProduct.precio), // Forzar como número
-        descripcion: updatedProduct.descripcion,
-        imagen: updatedProduct.imagen,
-        stock: Number(updatedProduct.stock),   // Forzar como número
-        categoria_id: updatedProduct.categoria.id,
-        categoria: updatedProduct.categoria,
-        estado: updatedProduct.estado,
-        estado_nombre: updatedProduct.estado.nombre
+      // IMPORTANTE: Manejar las subcategorías using QueryBuilder para asegurar persistencia
+      if (Array.isArray(subcategoria_ids)) {
+        console.log(`📝 Actualizando subcategorías del producto ${id}:`, subcategoria_ids);
+        
+        // Eliminar todas las relaciones existentes
+        await this.productRepository
+          .createQueryBuilder()
+          .relation(Producto, 'subcategorias')
+          .of(savedProduct.id)
+          .remove(existingProduct.subcategorias);
+        
+        // Agregar las nuevas subcategorías
+        if (subcategories.length > 0) {
+          await this.productRepository
+            .createQueryBuilder()
+            .relation(Producto, 'subcategorias')
+            .of(savedProduct.id)
+            .add(subcategories);
+        }
+        
+        console.log(`✅ Subcategorías actualizadas en la base de datos`);
+      }
+      
+      // Recargar para obtener todas las relaciones correctamente desde la BD
+      const fullProduct = await this.productRepository.findOne({
+        where: { id: savedProduct.id },
+        relations: ['categoria', 'subcategorias', 'estado']
       });
+
+      if (!fullProduct) {
+        res.status(500).json({ message: 'Error al recargar el producto actualizado' });
+        return;
+      }
+
+      console.log(`✅ Producto recargado con subcategorías:`, fullProduct.subcategorias?.map(s => ({ id: s.id, nombre: s.nombre })));
+      res.json(this.normalizeProduct(fullProduct));
     } catch (error) {
       console.error('Error en updateProduct:', error);
       res.status(500).json({ 

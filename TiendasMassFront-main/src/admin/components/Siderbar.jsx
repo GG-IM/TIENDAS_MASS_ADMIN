@@ -14,6 +14,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
     { to: '/admin/dashboard', label: 'Dashboard', icon: Home },
     { to: '/admin/productos', label: 'Productos', icon: Package },
     { to: '/admin/categorias', label: 'Categorías', icon: Folder },
+    { to: '/admin/subcategorias', label: 'Subcategorías', icon: Folder },
     { to: '/admin/usuarios', label: 'Usuarios', icon: Users },
     { to: '/admin/reportes', label: 'Pedidos', icon: ShoppingCart },
     { to: '/admin/estados', label: 'Estados', icon: Settings },
