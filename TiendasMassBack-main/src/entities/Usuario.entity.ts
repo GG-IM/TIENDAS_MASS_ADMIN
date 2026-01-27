@@ -6,6 +6,10 @@ import { MetodoPago } from "./MetodoPago.entity";
 import { Reporte } from "./Reportes.entity";
 import { TarjetaUsuario } from './TarjetaUsuario.entity';
 import { Direccion } from './Direccion.entity';
+import { OneToOne } from "typeorm";
+import { Cliente } from "./Cliente.entity";
+
+
 
 @Entity("Usuarios")
 export class Usuario {
@@ -57,4 +61,9 @@ export class Usuario {
 
   @OneToMany(() => Direccion, direccion => direccion.usuario)
   direcciones: Direccion[];
+
+  @OneToOne(() => Cliente, (c) => c.usuario)
+  cliente?: Cliente;
+
+  
 }

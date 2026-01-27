@@ -37,8 +37,7 @@ direccion: string;
   activo: boolean;
   
   @CreateDateColumn()
-  createdAt: Date;   // ✅ camelCase
-
+  createdAt: Date;  
   @UpdateDateColumn()
-  updatedAt: Date;   // ✅ camelCase
+  updatedAt: Date;  
 }

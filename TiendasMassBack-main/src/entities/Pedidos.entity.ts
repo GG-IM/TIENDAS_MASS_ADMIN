@@ -5,6 +5,7 @@ import { DetallePedido } from "./DetallePedido.entity";
 import { MetodoEnvio } from "./MetodoEnvio.entity";
 import { Reporte } from "./Reportes.entity";
 import { MetodoPago } from "./MetodoPago.entity";
+import { Cliente } from "./Cliente.entity";
 
 
 export enum EstadoPedido {
@@ -28,6 +29,15 @@ export class Pedido {
 
   @ManyToOne(() => Usuario, usuario => usuario.pedidos)
   usuario: Usuario;
+
+  // Cliente (natural/jurídico) asociado a la venta/pedido
+  @ManyToOne(() => Cliente, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "clienteId" })
+  cliente?: Cliente;
+
+  @Column({ nullable: true })
+  clienteId?: number;
+
 
   @Column({
     type: "enum",
