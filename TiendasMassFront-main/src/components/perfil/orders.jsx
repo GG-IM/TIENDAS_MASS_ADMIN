@@ -190,10 +190,65 @@ const Orders = () => {
                           ))}
                         </tbody>
                         <tfoot>
-                          <tr>
-                            <td colSpan="3" style={{ textAlign: 'right', fontWeight: 'bold' }}>Total:</td>
-                            <td style={{ fontWeight: 'bold' }}>S/.{parseFloat(selectedOrder.total).toFixed(2)}</td>
-                          </tr>
+                          {(() => {
+                            // Calcular subtotal de productos
+                            const subtotalProductos = selectedOrder.items.reduce((sum, detalle) => {
+                              return sum + ((detalle.cantidad || 0) * parseFloat(detalle.precio || 0));
+                            }, 0);
+                            
+                            // Calcular impuestos (8%)
+                            const impuestos = subtotalProductos * 0.08;
+                            
+                            // Verificar si tiene envío
+                            const tieneEnvio = selectedOrder.tipoEnvio && selectedOrder.tipoEnvio !== 'Recojo en tienda';
+                            
+                            // Calcular envío y comisión
+                            // Total = subtotal + impuestos + envío + comisión
+                            const subtotalConImpuestos = subtotalProductos + impuestos;
+                            const diferencia = parseFloat(selectedOrder.total) - subtotalConImpuestos;
+                            
+                            // Si tiene envío, la diferencia incluye envío + comisión
+                            // Si no tiene envío, la diferencia es solo comisión
+                            let envio = 0;
+                            let comision = 0;
+                            
+                            if (tieneEnvio && diferencia > 0) {
+                              // Intentar estimar envío (puede variar, pero usamos una aproximación)
+                              // O simplemente mostrar la diferencia como "Envío y otros cargos"
+                              envio = diferencia;
+                            } else {
+                              comision = diferencia;
+                            }
+                            
+                            return (
+                              <>
+                                <tr>
+                                  <td colSpan="3" style={{ textAlign: 'right', paddingTop: '0.5rem' }}>Subtotal:</td>
+                                  <td style={{ textAlign: 'right', paddingTop: '0.5rem' }}>S/.{subtotalProductos.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                  <td colSpan="3" style={{ textAlign: 'right' }}>Impuestos (8%):</td>
+                                  <td style={{ textAlign: 'right' }}>S/.{impuestos.toFixed(2)}</td>
+                                </tr>
+                                {tieneEnvio && envio > 0 && (
+                                  <tr>
+                                    <td colSpan="3" style={{ textAlign: 'right' }}>Envío:</td>
+                                    <td style={{ textAlign: 'right' }}>S/.{envio.toFixed(2)}</td>
+                                  </tr>
+                                )}
+                                {comision > 0 && (
+                                  <tr>
+                                    <td colSpan="3" style={{ textAlign: 'right' }}>Comisión método de pago:</td>
+                                    <td style={{ textAlign: 'right' }}>S/.{comision.toFixed(2)}</td>
+                                  </tr>
+                                )}
+                                <tr style={{ borderTop: '2px solid #e2e8f0' }}>
+                                  <td colSpan="3" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.5rem' }}>Total:</td>
+                                  <td style={{ fontWeight: 'bold', textAlign: 'right', paddingTop: '0.5rem', fontSize: '1.1rem' }}>S/.{parseFloat(selectedOrder.total).toFixed(2)}</td>
+                                </tr>
+                              </>
+                            );
+                          })()}
                         </tfoot>
                       </table>
                     </div>
