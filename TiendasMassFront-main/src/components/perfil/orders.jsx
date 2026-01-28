@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useUsuario } from '../../context/userContext';
 import '../../styles/perfil.css';
+
 const API_URL = "http://localhost:5001";
 
 const Orders = () => {
@@ -12,25 +13,18 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       if (!usuario?.id) return;
+
       try {
         const res = await fetch(`${API_URL}/api/pedidos/usuario/${usuario.id}`);
-
         const data = await res.json();
-        console.log('Respuesta del backend:', data);
 
         const pedidosFormateados = (data.pedidos || []).map(p => {
-          // Obtener tipo de envío
-          const tipoEnvio = p.shippingMethod 
-            ? p.shippingMethod.nombre 
-            : 'Recojo en tienda';
-          
-          // Obtener dirección o sede
+          const tipoEnvio = p.shippingMethod ? p.shippingMethod.nombre : 'Recojo en tienda';
+
           let direccionSede = 'N/A';
           if (p.direccion) {
-            // Si hay una dirección guardada, formatearla
             direccionSede = `${p.direccion.nombre || ''} - ${p.direccion.calle}, ${p.direccion.ciudad} ${p.direccion.codigoPostal || ''}`.trim();
           } else if (p.direccionEnvio) {
-            // Si hay dirección de envío como texto
             direccionSede = p.direccionEnvio;
           }
 
@@ -40,8 +34,8 @@ const Orders = () => {
             items: p.detallesPedidos || [],
             total: parseFloat(p.montoTotal),
             status: p.estado.charAt(0).toUpperCase() + p.estado.slice(1),
-            tipoEnvio: tipoEnvio,
-            direccionSede: direccionSede,
+            tipoEnvio,
+            direccionSede
           };
         });
 
@@ -62,6 +56,8 @@ const Orders = () => {
 
   return (
     <div className="orders-section">
+
+      {/* HEADER */}
       <div className="section-header">
         <div className="header-content">
           <h2>Mis Pedidos</h2>
@@ -69,6 +65,7 @@ const Orders = () => {
         </div>
       </div>
 
+      {/* STATS */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-number">{orders.length}</div>
@@ -84,48 +81,51 @@ const Orders = () => {
         </div>
       </div>
 
+      {/* LISTADO */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '2rem' }}>
           <p>Cargando pedidos...</p>
         </div>
       ) : orders.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '2rem', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-          <p style={{ color: '#64748b', fontSize: '1rem' }}>No tienes pedidos aún.</p>
+        <div className="empty-orders">
+          <p>No tienes pedidos aún.</p>
         </div>
       ) : (
         <div className="orders-list">
-          {orders.map((order) => (
+          {orders.map(order => (
             <div key={order.id} className="order-card">
               <div className="order-main">
                 <div className="order-info">
                   <div className="order-id">Pedido #{order.id}</div>
-                  <div className="order-date">{new Date(order.fecha).toLocaleDateString()}</div>
+                  <div className="order-date">
+                    {new Date(order.fecha).toLocaleDateString()}
+                  </div>
+
                   <div className="order-items">
-                    <div>{order.items.length} producto{order.items.length !== 1 ? 's' : ''}</div>
+                    <div>
+                      {order.items.length} producto{order.items.length !== 1 ? 's' : ''}
+                    </div>
+
                     {order.items.length > 0 && (
                       <button
                         onClick={() => setSelectedOrder(order)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#3b82f6',
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          fontSize: '0.875rem',
-                          padding: 0,
-                          marginTop: '0.25rem'
-                        }}
+                        className="ver-mas-btn"
                       >
                         ver más...
                       </button>
                     )}
                   </div>
                 </div>
+
                 <div className="order-status-section">
-                  <span className={`order-status status-${order.status.toLowerCase().replace(/\s/g, '-')}`}>
+                  <span
+                    className={`order-status status-${order.status.toLowerCase().replace(/\s/g, '-')}`}
+                  >
                     {order.status}
                   </span>
-                  <div className="order-total">S/ {parseFloat(order.total).toFixed(2)}</div>
+                  <div className="order-total">
+                    S/ {parseFloat(order.total).toFixed(2)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -133,118 +133,139 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Modal de Detalles de Productos */}
+      {/* ================= MODAL FACTURA ================= */}
+
       {selectedOrder && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
-          <div className="modal-dialog modal-lg" style={{ marginTop: '5vh' }}>
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Detalles del Pedido #{selectedOrder.id}</h5>
+        <div className="modal show d-block factura-overlay">
+          <div className="modal-dialog modal-lg factura-dialog">
+            <div className="modal-content border-0 shadow-lg factura-content">
+
+              {/* Header */}
+              <div className="modal-header factura-header">
+                <h5 className="modal-title factura-title">
+                  Detalles del Pedido #{selectedOrder.id}
+                </h5>
+
                 <button
                   type="button"
-                  className="btn-close"
+                  className="btn-close btn-close-white"
                   onClick={() => setSelectedOrder(null)}
-                  aria-label="Cerrar"
                 ></button>
               </div>
-              <div className="modal-body">
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <p><strong>Fecha del Pedido:</strong> {new Date(selectedOrder.fecha).toLocaleDateString()}</p>
-                    <p><strong>Tipo de envío:</strong> {selectedOrder.tipoEnvio}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <p><strong>Estado:</strong> 
-                      <span className={`order-status status-${selectedOrder.status.toLowerCase().replace(/\s/g, '-')}`} style={{ marginLeft: '0.5rem' }}>
-                        {selectedOrder.status}
-                      </span>
+
+              {/* Body */}
+              <div className="modal-body factura-body">
+
+                {/* Resumen */}
+                <div className="row g-3 mb-3 factura-resumen">
+                  <div className="col-md-6 factura-bloque">
+                    <p className="factura-label">Fecha del Pedido</p>
+                    <p className="factura-valor">
+                      {new Date(selectedOrder.fecha).toLocaleDateString()}
                     </p>
-                    <p><strong>Total:</strong> <span style={{ fontWeight: 'bold', color: '#1e293b' }}>S/ {parseFloat(selectedOrder.total).toFixed(2)}</span></p>
+
+                    <p className="factura-label mt">Tipo de envío</p>
+                    <p className="factura-valor">{selectedOrder.tipoEnvio}</p>
+                  </div>
+
+                  <div className="col-md-6 factura-bloque">
+                    <p className="factura-label">Estado del pedido</p>
+                    <span
+                      className={`order-status status-${selectedOrder.status.toLowerCase().replace(/\s/g, '-')}`}
+                    >
+                      {selectedOrder.status}
+                    </span>
+
+                    <p className="factura-label mt">Total pagado</p>
+                    <p className="factura-total">
+                      S/ {parseFloat(selectedOrder.total).toFixed(2)}
+                    </p>
                   </div>
                 </div>
-                <div className="mb-3">
-                  <p><strong>Dirección/Sede:</strong> {selectedOrder.direccionSede}</p>
+
+                {/* Dirección */}
+                <div className="factura-direccion">
+                  <p className="factura-label">Dirección / Sede</p>
+                  <p className="factura-valor">{selectedOrder.direccionSede}</p>
                 </div>
-                
+
+                {/* Productos */}
                 {selectedOrder.items && selectedOrder.items.length > 0 && (
-                  <div className="mt-4">
-                    <h6>Productos del Pedido</h6>
+                  <div className="mt-3">
+                   
                     <div className="table-responsive">
-                      <table className="table table-sm" style={{ marginTop: '1rem' }}>
+                      <table className="table table-sm align-middle factura-tabla">
                         <thead>
                           <tr>
                             <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Subtotal</th>
+                            <th>Cant.</th>
+                            <th className="text-end">Precio Unit.</th>
+                            <th className="text-end">Subtotal</th>
                           </tr>
                         </thead>
+
                         <tbody>
                           {selectedOrder.items.map((detalle, index) => (
                             <tr key={index}>
                               <td>{detalle.producto?.nombre || 'N/A'}</td>
                               <td>{detalle.cantidad}</td>
-                              <td>S/.{parseFloat(detalle.precio || 0).toFixed(2)}</td>
-                              <td>S/.{((detalle.cantidad || 0) * parseFloat(detalle.precio || 0)).toFixed(2)}</td>
+                              <td className="text-end">
+                                S/. {parseFloat(detalle.precio || 0).toFixed(2)}
+                              </td>
+                              <td className="text-end">
+                                S/. {((detalle.cantidad || 0) * parseFloat(detalle.precio || 0)).toFixed(2)}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
+
                         <tfoot>
                           {(() => {
-                            // Calcular subtotal de productos
-                            const subtotalProductos = selectedOrder.items.reduce((sum, detalle) => {
-                              return sum + ((detalle.cantidad || 0) * parseFloat(detalle.precio || 0));
-                            }, 0);
-                            
-                            // Calcular impuestos (8%)
+                            const subtotalProductos = selectedOrder.items.reduce(
+                              (sum, d) => sum + (d.cantidad || 0) * parseFloat(d.precio || 0), 0
+                            );
+
                             const impuestos = subtotalProductos * 0.08;
-                            
-                            // Verificar si tiene envío
-                            const tieneEnvio = selectedOrder.tipoEnvio && selectedOrder.tipoEnvio !== 'Recojo en tienda';
-                            
-                            // Calcular envío y comisión
-                            // Total = subtotal + impuestos + envío + comisión
+                            const tieneEnvio = selectedOrder.tipoEnvio !== 'Recojo en tienda';
                             const subtotalConImpuestos = subtotalProductos + impuestos;
                             const diferencia = parseFloat(selectedOrder.total) - subtotalConImpuestos;
-                            
-                            // Si tiene envío, la diferencia incluye envío + comisión
-                            // Si no tiene envío, la diferencia es solo comisión
+
                             let envio = 0;
                             let comision = 0;
-                            
-                            if (tieneEnvio && diferencia > 0) {
-                              // Intentar estimar envío (puede variar, pero usamos una aproximación)
-                              // O simplemente mostrar la diferencia como "Envío y otros cargos"
-                              envio = diferencia;
-                            } else {
-                              comision = diferencia;
-                            }
-                            
+
+                            if (tieneEnvio && diferencia > 0) envio = diferencia;
+                            else comision = diferencia;
+
                             return (
                               <>
                                 <tr>
-                                  <td colSpan="3" style={{ textAlign: 'right', paddingTop: '0.5rem' }}>Subtotal:</td>
-                                  <td style={{ textAlign: 'right', paddingTop: '0.5rem' }}>S/.{subtotalProductos.toFixed(2)}</td>
+                                  <td colSpan="3" className="text-end">Subtotal productos:</td>
+                                  <td className="text-end">S/. {subtotalProductos.toFixed(2)}</td>
                                 </tr>
                                 <tr>
-                                  <td colSpan="3" style={{ textAlign: 'right' }}>Impuestos (8%):</td>
-                                  <td style={{ textAlign: 'right' }}>S/.{impuestos.toFixed(2)}</td>
+                                  <td colSpan="3" className="text-end">Impuestos (8%):</td>
+                                  <td className="text-end">S/. {impuestos.toFixed(2)}</td>
                                 </tr>
+
                                 {tieneEnvio && envio > 0 && (
                                   <tr>
-                                    <td colSpan="3" style={{ textAlign: 'right' }}>Envío:</td>
-                                    <td style={{ textAlign: 'right' }}>S/.{envio.toFixed(2)}</td>
+                                    <td colSpan="3" className="text-end">Envío:</td>
+                                    <td className="text-end">S/. {envio.toFixed(2)}</td>
                                   </tr>
                                 )}
+
                                 {comision > 0 && (
                                   <tr>
-                                    <td colSpan="3" style={{ textAlign: 'right' }}>Comisión método de pago:</td>
-                                    <td style={{ textAlign: 'right' }}>S/.{comision.toFixed(2)}</td>
+                                    <td colSpan="3" className="text-end">Comisión método de pago:</td>
+                                    <td className="text-end">S/. {comision.toFixed(2)}</td>
                                   </tr>
                                 )}
-                                <tr style={{ borderTop: '2px solid #e2e8f0' }}>
-                                  <td colSpan="3" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.5rem' }}>Total:</td>
-                                  <td style={{ fontWeight: 'bold', textAlign: 'right', paddingTop: '0.5rem', fontSize: '1.1rem' }}>S/.{parseFloat(selectedOrder.total).toFixed(2)}</td>
+
+                                <tr className="factura-total-row">
+                                  <td colSpan="3" className="text-end fw-bold">Total:</td>
+                                  <td className="text-end fw-bold fs-6">
+                                    S/. {parseFloat(selectedOrder.total).toFixed(2)}
+                                  </td>
                                 </tr>
                               </>
                             );
@@ -254,20 +275,31 @@ const Orders = () => {
                     </div>
                   </div>
                 )}
+
               </div>
-              <div className="modal-footer">
+
+              {/* Footer */}
+              <div className="modal-footer factura-footer">
+                <img
+                  src="/src/assets/logo.png"
+                  alt="Logo Tiendas Mass"
+                  className="factura-logo"
+                />
+
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-outline-secondary btn-sm"
                   onClick={() => setSelectedOrder(null)}
                 >
                   Cerrar
                 </button>
               </div>
+
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };

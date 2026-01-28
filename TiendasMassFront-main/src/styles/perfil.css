@@ -389,3 +389,143 @@
     font-size: 1.5rem;
   }
 }
+/***************************************************
+ ******************* FACTURA MODAL *****************
+ ***************************************************/
+
+/* Overlay */
+.factura-overlay {
+  background-color: rgba(15, 23, 42, 0.55);
+  z-index: 1050;
+  backdrop-filter: blur(2px);
+}
+
+/* Dialog */
+.factura-dialog {
+  margin-top: 5vh;
+  max-width: 900px;
+}
+
+/* Contenido */
+.factura-content {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Header */
+.factura-header {
+  background: #FFD100;
+  border-bottom: none;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Título */
+.factura-title {
+  font-weight: 900;
+  font-size: 26px;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* Body */
+.factura-body {
+  padding: 1.5rem 1.75rem;
+}
+
+/* Resumen superior */
+.factura-resumen {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+}
+
+.factura-bloque {
+  line-height: 1.4;
+}
+
+/* Textos */
+.factura-label {
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.factura-valor {
+  margin: 0;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.factura-total {
+  margin: 0;
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 1.15rem;
+}
+
+/* Dirección */
+.factura-direccion {
+  border-left: 3px solid #3b82f6;
+  padding-left: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Subtítulo */
+.factura-subtitle {
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Tabla */
+.factura-tabla {
+  font-size: 0.9rem;
+}
+
+.factura-tabla thead {
+  background: #f1f5f9;
+}
+
+.factura-tabla th {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.factura-tabla td {
+  vertical-align: middle;
+}
+
+.factura-tabla tfoot td {
+  padding-top: 0.35rem;
+}
+
+.factura-total-row td {
+  border-top: 2px solid #e2e8f0;
+  padding-top: 0.6rem;
+}
+
+/* Footer */
+.factura-footer {
+  border-top: none;
+  padding: 0.75rem 1.75rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo */
+.factura-logo {
+  height: 28px;
+  width: auto;
+  opacity: 0.95;
+}
+
+/* Espaciado vertical */
+.mt {
+  margin-top: 0.85rem;
+}
