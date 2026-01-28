@@ -122,6 +122,7 @@ router.get('/success', (_req, res) => {
   console.log('✅ MP Success recibido:', { prefId, paymentId, collectionId });
 
   // Redirige al frontend (localhost) con el preference_id
+  res.set('ngrok-skip-browser-warning', 'true');
   res.redirect(302, `http://localhost:5173/checkout/success?payment_id=${prefId || paymentId || collectionId}`);
 });
 
@@ -132,6 +133,7 @@ router.get('/failure', (_req, res) => {
 
   console.log('❌ MP Failure recibido:', { reason });
 
+  res.set('ngrok-skip-browser-warning', 'true');
   res.redirect(302, `http://localhost:5173/checkout/failure?reason=${encodeURIComponent(reason)}`);
 });
 
@@ -142,6 +144,7 @@ router.get('/pending', (_req, res) => {
 
   console.log('⏳ MP Pending recibido:', { prefId });
 
+  res.set('ngrok-skip-browser-warning', 'true');
   res.redirect(302, `http://localhost:5173/checkout/pending?payment_id=${prefId}`);
 });
 
