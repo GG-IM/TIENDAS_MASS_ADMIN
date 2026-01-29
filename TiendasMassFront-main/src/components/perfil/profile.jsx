@@ -7,6 +7,9 @@ const API_URL = "http://localhost:5001";
 const Profile = ({ userData, setUserData }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [clienteData, setClienteData] = useState(null);
+  const [clienteLoading, setClienteLoading] = useState(true);
+
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -15,6 +18,25 @@ const Profile = ({ userData, setUserData }) => {
     direccion: '',
     codigoPostal: ''
   });
+
+  const [clienteForm, setClienteForm] = useState({
+  persona: {
+    numeroDocumento: '',
+    nombres: '',
+    apellidoPaterno: '',
+    apellidoMaterno: '',
+    correo: '',
+    telefono: ''
+  },
+  empresa: {
+    ruc: '',
+    razonSocial: '',
+    nombreComercial: '',
+    correo: '',
+    telefono: ''
+  }
+});
+
 
   useEffect(() => {
     if (userData) {
@@ -28,6 +50,65 @@ const Profile = ({ userData, setUserData }) => {
     }
   }, [userData]);
 
+  //traenos los datos de si es juridico o natural
+useEffect(() => {
+  const fetchCliente = async () => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+      if (!token) {
+        console.warn("No hay token en localStorage");
+        setClienteData(null);
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/clientes/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json().catch(() => null);
+
+      console.log("clientes/me status:", res.status);
+      console.log("clientes/me data:", data);
+
+      if (!res.ok) {
+        setClienteData(null);
+        return;
+      }
+
+      setClienteData(data);
+      setClienteForm({
+            persona: {
+              numeroDocumento: data?.persona?.numeroDocumento || '',
+              nombres: data?.persona?.nombres || '',
+              apellidoPaterno: data?.persona?.apellidoPaterno || '',
+              apellidoMaterno: data?.persona?.apellidoMaterno || '',
+              correo: data?.persona?.correo || '',
+              telefono: data?.persona?.telefono || ''
+            },
+            empresa: {
+              ruc: data?.empresa?.ruc || '',
+              razonSocial: data?.empresa?.razonSocial || '',
+              nombreComercial: data?.empresa?.nombreComercial || '',
+              correo: data?.empresa?.correo || '',
+              telefono: data?.empresa?.telefono || ''
+            }
+      });
+
+
+    } catch (e) {
+      console.error("Error fetchCliente:", e);
+      setClienteData(null);
+    } finally {
+      setClienteLoading(false);
+    }
+  };
+
+  fetchCliente();
+}, []);
+
+
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     
@@ -39,51 +120,89 @@ const Profile = ({ userData, setUserData }) => {
     }));
   };
 
-  const handleSave = async () => {
-    // Validar formulario
-    const errors = validatePerfilForm(formData);
-    setFieldErrors(errors);
-    
-    if (Object.keys(errors).length > 0) {
+ const handleSave = async () => {
+  const errors = validatePerfilForm(formData);
+  setFieldErrors(errors);
+  if (Object.keys(errors).length > 0) return;
+
+  try {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No hay token. Vuelve a iniciar sesión.' });
       return;
     }
-    
-    try {
-      const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/api/usuarios/update/${userData.id}`, {
+    // 1) Guardar Usuario
+    const response = await fetch(`${API_URL}/api/usuarios/update/${userData.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
 
+    const result = await response.json().catch(() => null);
+    console.log("update usuario status:", response.status);
+    console.log("update usuario body:", result);
+
+    if (!response.ok) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error usuario',
+        text: result?.message || 'Error al guardar los datos del usuario',
+      });
+      return;
+    }
+
+    setUserData(result.usuario);
+    setFormData(result.usuario);
+
+    // 2) Guardar Cliente/Persona/Empresa
+    if (clienteData) {
+      const resCliente = await fetch(`${API_URL}/api/clientes/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(clienteForm),
       });
 
-      if (!response.ok) throw new Error('Error al guardar los datos');
+      const dataCliente = await resCliente.json().catch(() => null);
+      console.log("update cliente status:", resCliente.status);
+      console.log("update cliente body:", dataCliente);
+      
+      if (!resCliente.ok) {
+        Swal.fire({
+          icon: 'error',
+          title: `Error cliente (${resCliente.status})`,
+          text: (dataCliente && (dataCliente.message || dataCliente.error)) || 'Error al guardar datos de cliente',
+        });
+        console.log("PUT /clientes/me status:", resCliente.status, "body:", dataCliente);
+        return;
+      }
 
-      const result = await response.json();
 
-      // ✅ Actualiza userData y formData
-      setUserData(result.usuario);
-      setFormData(result.usuario);
-
-      setIsEditing(false);
-      Swal.fire({
-        icon: 'success',
-        title: 'Éxito',
-        text: 'Perfil actualizado correctamente',
-      });
-    } catch (error) {
-      console.error(error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error al guardar el perfil',
-      });
+      setClienteData(dataCliente);
     }
-  };
+
+    setIsEditing(false);
+    Swal.fire({
+      icon: 'success',
+      title: 'Éxito',
+      text: 'Perfil actualizado correctamente',
+    });
+
+  } catch (error) {
+    console.error("ERROR handleSave:", error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error?.message || 'Error al guardar el perfil',
+    });
+  }
+};
 
 
 
@@ -222,6 +341,273 @@ const Profile = ({ userData, setUserData }) => {
               )}
             </div>
           </div>
+
+{/* ===== Datos de Cliente (Natural / Jurídico) ===== */}
+<div className="profile-form" style={{ marginTop: 20 }}>
+  <div className="form-row">
+    <div className="form-group">
+      <label>Tipo de cliente</label>
+      <div className="field-display">
+        {clienteLoading ? "Cargando..." : (clienteData?.tipoCliente?.nombre || "No definido")}
+      </div>
+    </div>
+  </div>
+
+  {!clienteLoading && clienteData && (
+    <>
+      {/* ===================== NATURAL ===================== */}
+      {clienteData.tipoCliente?.nombre === "NATURAL" && (
+        <>
+          <div className="form-row">
+            <div className="form-group">
+              <label>DNI</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.numeroDocumento}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, numeroDocumento: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.persona?.numeroDocumento || "-"}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Nombres</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.nombres}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, nombres: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.persona?.nombres || "-"}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Apellido Paterno</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.apellidoPaterno}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, apellidoPaterno: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.persona?.apellidoPaterno || "-"}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Apellido Materno</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.apellidoMaterno}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, apellidoMaterno: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.persona?.apellidoMaterno || "-"}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Correo (Persona)</label>
+              {isEditing ? (
+                <input
+                  type="email"
+                  value={clienteForm.persona.correo}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, correo: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.persona?.correo || "-"}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Teléfono (Persona)</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.telefono}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, telefono: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.persona?.telefono || "-"}</div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ===================== JURIDICO ===================== */}
+      {clienteData.tipoCliente?.nombre === "JURIDICO" && (
+        <>
+          <div className="form-row">
+            <div className="form-group">
+              <label>RUC</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.empresa.ruc}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      empresa: { ...prev.empresa, ruc: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.empresa?.ruc || "-"}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Razón Social</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.empresa.razonSocial}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      empresa: { ...prev.empresa, razonSocial: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.empresa?.razonSocial || "-"}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Nombre Comercial</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.empresa.nombreComercial}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      empresa: { ...prev.empresa, nombreComercial: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.empresa?.nombreComercial || "-"}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Correo (Empresa)</label>
+              {isEditing ? (
+                <input
+                  type="email"
+                  value={clienteForm.empresa.correo}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      empresa: { ...prev.empresa, correo: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.empresa?.correo || "-"}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Teléfono (Empresa)</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.empresa.telefono}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      empresa: { ...prev.empresa, telefono: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.empresa?.telefono || "-"}</div>
+              )}
+            </div>
+          </div>
+
+          {/* (Opcional) también puedes permitir editar el "contacto" Persona aunque sea jurídico */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Nombre del contacto</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.nombres}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, nombres: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData.persona?.nombres || "-"}</div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  )}
+
+  {!clienteLoading && !clienteData && (
+    <div className="form-row">
+      <div className="form-group">
+        <div className="field-display">
+          Este usuario aún no tiene datos de cliente (natural/jurídico).
+        </div>
+      </div>
+    </div>
+  )}
+</div>
 
           
 

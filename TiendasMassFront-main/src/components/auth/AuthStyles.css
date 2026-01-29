@@ -277,4 +277,74 @@
   .forgot-password {
     margin-top: 8px;
   }
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #111827;
+}
+
+/* Contenedor del select: se ve como input */
+.select-wrap {
+  width: 100%;
+  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* Efecto focus "pro" */
+.select-wrap:focus-within {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 5px rgba(124, 58, 237, 0.14), 0 12px 30px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.select-control {
+  width: 100%;
+  padding: 14px 44px 14px 14px; /* espacio para chevron */
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+
+  /* Quitar estilo nativo */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Flecha bonita */
+.select-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* Disabled */
+.select-wrap.is-disabled {
+  opacity: 0.7;
+  box-shadow: none;
+}
+.select-wrap.is-disabled .select-control {
+  cursor: not-allowed;
+}
+
+/* Error */
+.select-wrap.is-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.12), 0 12px 30px rgba(0,0,0,0.06);
+}
+
+
 }

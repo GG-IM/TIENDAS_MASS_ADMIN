@@ -4,6 +4,12 @@ import { AppDataSource } from '../config/data-source';
 import { Usuario } from '../entities/Usuario.entity';
 import { Estado } from '../entities/Estado.entity';
 import { Rol } from '../entities/Rol.entity';
+
+import { Persona } from '../entities/Persona.entity';
+import { Cliente } from '../entities/Cliente.entity';
+import { Empresa } from '../entities/Empresa.entity';
+import { TipoCliente } from '../entities/TipoCliente.entity';
+
 //JWT
 import fs from 'fs';
 import path from 'path';
@@ -66,7 +72,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       telefono,
       ciudad,
       codigoPostal,
-      rolId = 2  
+      rolId = 2  ,
+      // ✅ NUEVO (viene del front)
+      tipoClienteId,
+      persona,
+      empresa
     } = req.body;
 
     // Validaciones de entrada
@@ -172,49 +182,147 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+      // ✅ Validar que venga tipoClienteId y persona
+    if (!tipoClienteId) {
+      res.status(400).json({ message: 'tipoClienteId es requerido' });
+      return;
+    }
+    if (!persona) {
+      res.status(400).json({ message: 'Los datos de persona son requeridos' });
+      return;
+    }
+
     // Hashea la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
+  
+    // ✅ Todo en transacción para que no quede a medias
+    const resultado = await AppDataSource.transaction(async (manager) => {
+      const rolRepo = manager.getRepository(Rol);
+      const estadoRepo = manager.getRepository(Estado);
+      const usuarioRepo = manager.getRepository(Usuario);
 
-    // Crea el nuevo usuario
-    const nuevoUsuario = usuarioRepository.create({
-      nombre,
-      email: normalizedEmail, // ✅ Guardar email normalizado
-      password: hashedPassword,
-      direccion,
-      estado,
-      telefono,
-      ciudad,
-      codigoPostal,
-      rol
+      const tipoClienteRepo = manager.getRepository(TipoCliente);
+      const personaRepo = manager.getRepository(Persona);
+      const empresaRepo = manager.getRepository(Empresa);
+      const clienteRepo = manager.getRepository(Cliente);
+
+      // Revalidar rol/estado dentro de transacción
+      const rolTx = await rolRepo.findOneBy({ id: rolId });
+      if (!rolTx) throw new Error(`Rol con ID ${rolId} no encontrado`);
+
+      const estadoTx = await estadoRepo.findOneBy({ id: estadoId });
+      if (!estadoTx) throw new Error(`Estado con ID ${estadoId} no encontrado`);
+
+      // TipoCliente (tabla)
+      const tipo = await tipoClienteRepo.findOneBy({ id: Number(tipoClienteId) });
+      if (!tipo) throw new Error(`TipoCliente con ID ${tipoClienteId} no encontrado`);
+
+      const tipoNombre = String(tipo.nombre).toUpperCase(); // NATURAL | JURIDICO
+
+      // Validaciones por tipo (mínimas)
+      if (tipoNombre === 'NATURAL') {
+        const dni = String(persona.numeroDocumento || '');
+        if (dni.length !== 8) throw new Error('DNI inválido (debe tener 8 dígitos)');
+      }
+
+      if (tipoNombre === 'JURIDICO') {
+        if (!empresa) throw new Error('Datos de empresa requeridos para persona jurídica');
+        const ruc = String(empresa.ruc || '');
+        if (ruc.length !== 11) throw new Error('RUC inválido (debe tener 11 dígitos)');
+        if (!empresa.razonSocial) throw new Error('Razón social es obligatoria');
+      }
+
+      // 1) Crear Usuario (igual que antes)
+      const nuevoUsuarioTx = usuarioRepo.create({
+        nombre,
+        email: normalizedEmail,
+        password: hashedPassword,
+        direccion,
+        estado: estadoTx,
+        telefono,
+        ciudad,
+        codigoPostal,
+        rol: rolTx
+      });
+
+      const usuarioGuardadoTx = await usuarioRepo.save(nuevoUsuarioTx);
+
+      // 2) Crear Persona
+      const personaTx = personaRepo.create({
+        tipoDocumento: persona.tipoDocumento || 'DNI',
+        numeroDocumento: String(persona.numeroDocumento || ''),
+        nombres: persona.nombres || nombre,
+        apellidoPaterno: persona.apellidoPaterno || '',
+        apellidoMaterno: persona.apellidoMaterno || '',
+        correo: (persona.correo || normalizedEmail).trim().toLowerCase(),
+        telefono: persona.telefono || telefono || ''
+      });
+
+      const personaGuardada = await personaRepo.save(personaTx);
+
+      // 3) Crear Empresa si es JURIDICO
+      let empresaGuardada: Empresa | null = null;
+
+      if (tipoNombre === 'JURIDICO') {
+        // Evitar duplicado por RUC (si ya existe)
+        const existeEmpresa = await empresaRepo.findOne({ where: { ruc: String(empresa.ruc) } });
+        if (existeEmpresa) throw new Error('Ya existe una empresa con ese RUC');
+
+        const empresaTx = empresaRepo.create({
+          ruc: String(empresa.ruc),
+          razonSocial: empresa.razonSocial,
+          nombreComercial: empresa.nombreComercial || '',
+          correo: (empresa.correo || normalizedEmail).trim().toLowerCase(),
+          telefono: empresa.telefono || telefono || ''
+        });
+
+        empresaGuardada = await empresaRepo.save(empresaTx);
+      }
+
+      const clienteTx = clienteRepo.create({
+        usuario: usuarioGuardadoTx,
+        personaId: personaGuardada.id,
+        tipoCliente: tipo,
+        empresa: empresaGuardada ?? undefined,
+        correo: normalizedEmail,
+        telefono: persona.telefono || telefono || ''
+      });
+
+
+      const clienteGuardado = await clienteRepo.save(clienteTx);
+
+      return { usuarioGuardadoTx, clienteGuardado, personaGuardada, empresaGuardada, rolTx, estadoTx };
     });
 
-    // Guarda en la base de datos
-    const usuarioGuardado = await usuarioRepository.save(nuevoUsuario);
-
-    // Respuesta completa con objetos relacionados
+    // ✅ Respuesta (misma estructura que ya tenías) + clienteId
     res.status(201).json({
-      id: usuarioGuardado.id,
-      nombre: usuarioGuardado.nombre,
-      email: usuarioGuardado.email,
-      direccion: usuarioGuardado.direccion,
-      telefono: usuarioGuardado.telefono,
-      ciudad: usuarioGuardado.ciudad,
-      codigoPostal: usuarioGuardado.codigoPostal,
+      id: resultado.usuarioGuardadoTx.id,
+      nombre: resultado.usuarioGuardadoTx.nombre,
+      email: resultado.usuarioGuardadoTx.email,
+      direccion: resultado.usuarioGuardadoTx.direccion,
+      telefono: resultado.usuarioGuardadoTx.telefono,
+      ciudad: resultado.usuarioGuardadoTx.ciudad,
+      codigoPostal: resultado.usuarioGuardadoTx.codigoPostal,
       estado: {
-        id: usuarioGuardado.estado.id,
-        nombre: usuarioGuardado.estado.nombre
+        id: resultado.estadoTx.id,
+        nombre: resultado.estadoTx.nombre
       },
       rol: {
-        id: usuarioGuardado.rol.id,
-        nombre: usuarioGuardado.rol.nombre
-      }
-    });
+        id: resultado.rolTx.id,
+        nombre: resultado.rolTx.nombre
+      },
 
+      // ✅ extra para debug/uso
+      clienteId: resultado.clienteGuardado.id
+    });
+        return; // opcional, pero ayuda
   } catch (error: any) {
     console.error('Error en register:', error);
-    res.status(500).json({ message: 'Error interno del servidor' });
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
+    return;
   }
 };
+
 
 
 // Iniciar sesión
