@@ -1,6 +1,6 @@
 // steps/Step1Shipping.jsx
 import React, { useEffect, useState } from 'react';
-import { MapPin, User, Mail, Phone, Truck, Store } from 'lucide-react';
+import { MapPin, User, Mail, Phone, Truck, Store, RefreshCw } from 'lucide-react';
 import { useCarrito } from '../../../context/carContext';
 import { useUsuario } from '../../../context/userContext';
 
@@ -263,10 +263,13 @@ const Step1Shipping = ({
                         <option value="custom">+ Agregar dirección nueva</option>
                       </select>
                       <div style={{display: 'flex', gap: 8}}>
-                        <button type="button" className="btn-tertiary" onClick={async () => {
+                        <button type="button" className="btn-tertiary btn-small" onClick={async () => {
                           if (typeof reloadUserAddresses === 'function') await reloadUserAddresses();
-                        }} title="Recargar direcciones">Recargar</button>
-                        <a href="/perfil#addresses" className="btn-link">Ir a Mis Direcciones</a>
+                        }} title="Recargar direcciones" aria-label="Recargar direcciones">
+                          <RefreshCw className="btn-icon" />
+                          <span>Recargar</span>
+                        </button>
+                        <a href="/perfil#addresses" className="btn-tertiary btn-small" aria-label="Ir a mis direcciones">Ir a Mis Direcciones</a>
                       </div>
                     </div>
                   </div>
