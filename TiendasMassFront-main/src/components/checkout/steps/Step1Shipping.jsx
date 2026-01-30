@@ -1,6 +1,6 @@
 // steps/Step1Shipping.jsx
 import React, { useEffect, useState } from 'react';
-import { MapPin, User, Mail, Phone, Truck, Store, RefreshCw } from 'lucide-react';
+import { MapPin, User, Mail, Phone, Truck, Store, RefreshCw, Home, Hash, Info, Star } from 'lucide-react';
 import { useCarrito } from '../../../context/carContext';
 import { useUsuario } from '../../../context/userContext';
 
@@ -284,9 +284,13 @@ const Step1Shipping = ({
                       const a = userAddresses.find(addr => addr.id.toString() === selectedAddressId);
                       return a ? (
                         <div className="address-info">
-                          <div>{a.calle}</div>
-                          <div>{a.ciudad}, {a.codigoPostal}</div>
-                          {a.referencia && <div><small>Referencia: {a.referencia}</small></div>}
+                          <div className="address-row"><User className="address-icon" /> <span className="address-label">Nombre:</span> <span className="address-value">{a.nombre || a.alias || '—'}</span></div>
+                          <div className="address-row"><MapPin className="address-icon" /> <span className="address-label">Dirección:</span> <span className="address-value">{a.calle || '—'}</span></div>
+                          <div className="address-row"><Home className="address-icon" /> <span className="address-label">Ciudad:</span> <span className="address-value">{a.ciudad || '—'}</span></div>
+                          <div className="address-row"><Hash className="address-icon" /> <span className="address-label">Código postal:</span> <span className="address-value">{a.codigoPostal || a.zipCode || '—'}</span></div>
+                          {a.referencia && <div className="address-row"><Info className="address-icon" /> <span className="address-label">Referencia:</span> <span className="address-value">{a.referencia}</span></div>}
+                          {a.telefono && <div className="address-row"><Phone className="address-icon" /> <span className="address-label">Teléfono:</span> <span className="address-value">{a.telefono}</span></div>}
+                          {a.esPrincipal && <div className="address-row"><Star className="address-icon" /> <span className="address-label">Principal:</span> <span className="address-value">Sí</span></div>}
                         </div>
                       ) : null;
                     })()}

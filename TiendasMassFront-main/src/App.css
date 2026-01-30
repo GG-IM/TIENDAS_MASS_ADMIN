@@ -85,3 +85,47 @@
   align-items: center;
   gap: 8px;
 }
+
+.selected-address-display {
+  margin-top: 10px;
+  background: #fffaf0;
+  border: 1px solid rgba(249,115,22,0.12);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.selected-address-display strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+.address-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.address-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.address-label {
+  color: #374151;
+  font-weight: 600;
+  min-width: 110px;
+}
+
+.address-value {
+  color: #4b5563;
+}
+
+.address-icon {
+  width: 16px;
+  height: 16px;
+  color: #f97316;
+  flex: 0 0 18px;
+  margin-right: 6px;
+}
