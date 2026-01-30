@@ -193,13 +193,11 @@ export const obtenerPedidoPorId = async (req: Request, res: Response): Promise<R
     });
 
     if (!pedido) return res.status(404).json({ error: "Pedido no encontrado" });
-
     // Exponemos estado_pago y estadoPago para polling del front
     return res.json({
       id: pedido.id,
       estado: pedido.estado,
       estado_pago: pedido.estadoPago,
-      estadoPago: pedido.estadoPago,
       montoTotal: Number(pedido.montoTotal),
       direccionEnvio: pedido.direccionEnvio,
       direccion: pedido.direccion,
@@ -343,4 +341,4 @@ export const obtenerEstadisticasPedidos = async (req: Request, res: Response): P
     console.error(error);
     return res.status(500).json({ error: "Error al obtener estadísticas de pedidos" });
   }
-};
+};                

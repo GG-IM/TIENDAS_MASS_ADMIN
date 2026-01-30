@@ -6,7 +6,7 @@ import {
 } from 'typeorm';
 
 
-@Entity('Roles')
+@Entity('Rol')
 export class Rol {
   @PrimaryGeneratedColumn()
   id: number;

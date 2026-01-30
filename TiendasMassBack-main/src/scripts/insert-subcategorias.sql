@@ -54,8 +54,3 @@ INSERT INTO Subcategorias (nombre, descripcion, categoriaId, estadoId) VALUES
 ('Cuidado Capilar', 'Shampoo, acondicionador y tratamientos capilares', 8, 1),
 ('Higiene Corporal', 'Jabones, geles de baño y productos corporales', 8, 1),
 ('Desodorantes', 'Desodorantes y antitranspirantes', 8, 1);
-
--- ============================================
--- VERIFICA LA INSERCIÓN
--- ============================================
--- SELECT id, nombre, descripcion, categoriaId, estadoId FROM Subcategorias;

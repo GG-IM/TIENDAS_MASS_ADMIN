@@ -5,7 +5,7 @@ import { Estado } from "./Estado.entity";
 import { DetallePedido } from "./DetallePedido.entity";
 import { Reporte } from "./Reportes.entity";
 
-@Entity("Productos")
+@Entity("Producto")
 export class Producto {
   @PrimaryGeneratedColumn()
   id: number;

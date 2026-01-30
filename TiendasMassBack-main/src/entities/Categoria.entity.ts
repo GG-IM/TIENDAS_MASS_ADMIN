@@ -9,7 +9,7 @@ import { Estado } from './Estado.entity';
 import { Subcategoria } from './Subcategoria.entity';
 import { ManyToOne } from 'typeorm';
 
-@Entity('Categorias')
+@Entity('Categoria')
 export class Categoria {
   @PrimaryGeneratedColumn()
   id: number;

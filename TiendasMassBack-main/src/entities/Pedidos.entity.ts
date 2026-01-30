@@ -22,7 +22,7 @@ export enum EstadoPago {
   FALLIDO = "fallido",
 }
 
-@Entity("Pedidos")
+@Entity("Pedido")
 export class Pedido {
   @PrimaryGeneratedColumn()
   id: number;

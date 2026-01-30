@@ -11,7 +11,7 @@ import { Cliente } from "./Cliente.entity";
 
 
 
-@Entity("Usuarios")
+@Entity("Usuario")
 export class Usuario {
   @PrimaryGeneratedColumn()
   id: number;
@@ -41,10 +41,10 @@ export class Usuario {
   @ManyToOne(() => Estado, estado => estado.usuarios)
   estado: Estado;
 
-  @CreateDateColumn({ name: "creado_en" })
+  @CreateDateColumn()
   creadoEn: Date;
 
-  @UpdateDateColumn({ name: "actualizado_en" })
+  @UpdateDateColumn()
   actualizadoEn: Date;
 
   @ManyToOne(() => Rol, { eager: true })

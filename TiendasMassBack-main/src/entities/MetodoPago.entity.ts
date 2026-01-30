@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Pedido } from './Pedidos.entity';
 
-@Entity('Metodos_Pago')
+@Entity('MetodoPago')
 export class MetodoPago {
   @PrimaryGeneratedColumn()
   id: number;

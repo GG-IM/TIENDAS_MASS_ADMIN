@@ -35,7 +35,3 @@ UPDATE Productos SET subcategoriaId = 14 WHERE id = 8; -- Gomitas Frutales
 -- Subcategoría: Pan (id = 17)
 UPDATE Productos SET subcategoriaId = 17 WHERE id = 9; -- Pan Integral
 
--- ============================================
--- VERIFICA LOS CAMBIOS
--- ============================================
--- SELECT id, nombre, categoriaId, subcategoriaId FROM Productos WHERE subcategoriaId IS NOT NULL;

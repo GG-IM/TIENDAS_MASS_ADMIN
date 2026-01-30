@@ -24,6 +24,7 @@ import setupRoutes from "./routes/setup.routes";
 import tiendaRoutes from "./routes/tienda.routes";
 import tipoClienteRoutes from "./routes/tipoCliente.routes";
 import clienteRoutes from "./routes/cliente.routes";
+import { TipoCliente } from "./entities/TipoCliente.entity";
 
 
 // === MERCADO PAGO ===
@@ -128,11 +129,29 @@ app.get("/api/diagnostics", async (_req, res) => {
   }
 });
 
+// Seed TipoCliente si la tabla está vacía (NATURAL y JURIDICO)
+async function seedTipoCliente(): Promise<void> {
+  try {
+    const repo = AppDataSource.getRepository(TipoCliente);
+    const count = await repo.count();
+    if (count === 0) {
+      await repo.save([
+        { id: 1, nombre: "NATURAL", descripcion: "Persona natural con DNI" },
+        { id: 2, nombre: "JURIDICO", descripcion: "Persona jurídica con RUC" },
+      ]);
+      console.log("✅ Tipos de cliente insertados (NATURAL, JURIDICO)");
+    }
+  } catch (e) {
+    console.warn("⚠️ Seed TipoCliente:", (e as Error).message);
+  }
+}
+
 // === CONEXIÓN BD Y SERVER ===
 AppDataSource.initialize()
-  .then(() => {
+  .then(async () => {
     console.log("✅ Conexión a la base de datos exitosa");
     console.log("📊 Database:", AppDataSource.options.database);
+    await seedTipoCliente();
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
       console.log(

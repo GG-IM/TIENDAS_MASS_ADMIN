@@ -3,7 +3,7 @@ import { Pedido } from "./Pedidos.entity";
 import { Producto } from "./Producto.entity";
 import { Usuario } from "./Usuario.entity";
 
-@Entity("Reportes")
+@Entity("Reporte")
 export class Reporte {
   @PrimaryGeneratedColumn()
   id: number;

@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { Pedido } from "./Pedidos.entity";
 
-@Entity("Metodos_Envio")
+@Entity("MetodoEnvio")
 export class MetodoEnvio {
   @PrimaryGeneratedColumn()
   id: number;
