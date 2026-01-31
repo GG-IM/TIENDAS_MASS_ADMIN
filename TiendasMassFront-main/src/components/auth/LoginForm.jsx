@@ -8,7 +8,7 @@ import { validateLoginForm } from '../../utils/validators';
 
 const API_URL = "http://localhost:5001";
 
-function LoginForm({ switchToRegister }) {
+function LoginForm({ switchToRegister, onOTPRequired }) {
   const navigate = useNavigate();
   const { login } = useUsuario();
   const [formData, setFormData] = useState({
@@ -68,36 +68,36 @@ function LoginForm({ switchToRegister }) {
         hasToken: !!data.token
       });
 
-      if (response.ok && data.token) {
-        console.log('✅ Datos válidos recibidos, procesando login...');
+      if (response.ok) {
+        console.log('✅ Credenciales válidas, solicitar OTP...');
 
+        // Solicitar OTP en lugar de loguear directamente
         try {
-          // ✅ El contexto maneja automáticamente ambas estructuras
-          await login(data, formData.remember);
-
-          console.log('✅ Context actualizado exitosamente');
-
-          // Mostrar mensaje de éxito
-          await Swal.fire({
-            icon: 'success',
-            title: '¡Bienvenido!',
-            text: `Hola ${data.nombre || data.usuario?.nombre || 'Usuario'}`,
-            timer: 1500,
-            showConfirmButton: false
+          const otpResponse = await fetch(`${API_URL}/api/auth/otp/solicitar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: formData.email.trim().toLowerCase()
+            })
           });
 
-          // Redirigir siempre a la página principal
-          navigate('/');
-
-        } catch (contextError) {
-          console.error('❌ Error en el contexto:', contextError);
+          if (otpResponse.ok) {
+            console.log('✅ OTP solicitado, mostrando formulario de verificación');
+            // Mostrar pantalla de OTP
+            if (onOTPRequired) {
+              onOTPRequired(formData.email.trim().toLowerCase());
+            }
+          } else {
+            throw new Error('No se pudo solicitar OTP');
+          }
+        } catch (error) {
+          console.error('❌ Error al solicitar OTP:', error);
           Swal.fire({
             icon: 'error',
-            title: 'Error interno',
-            text: 'Error al procesar los datos de usuario'
+            title: 'Error',
+            text: 'No se pudo enviar el código OTP'
           });
         }
-
       } else {
         // Manejar errores del servidor
         const errorMessage = data.message || data.error || 'Credenciales inválidas';

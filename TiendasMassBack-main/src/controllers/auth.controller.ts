@@ -5,6 +5,7 @@ import { AppDataSource } from '../config/data-source';
 import { Usuario } from '../entities/Usuario.entity';
 import fs from 'fs';
 import path from 'path';
+import { crearOTP, validarOTP, registrarIntentoOTP } from '../services/otp.service';
 
 const privateKey = fs.readFileSync(path.join(__dirname, '..', 'keys', 'private.key'), 'utf8');
 const usuarioRepository = AppDataSource.getRepository(Usuario);
@@ -41,21 +42,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Crear token JWT
-    const token = jwt.sign(
-      {
-        userId: usuario.id,
-        email: usuario.email,
-        nombre: usuario.nombre,
-        rol: usuario.rol?.nombre
-      },
-      privateKey,
-      {
-        algorithm: 'RS256',
-        expiresIn: '24h'
-      }
-    );
-
+    // NO generar token aquí - solo retornar datos del usuario
+    // El token se generará después de verificar el OTP
     res.json({
       usuario: {
         id: usuario.id,
@@ -68,8 +56,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         estado: usuario.estado,
         rol: usuario.rol
       },
-      token: token,
-      expiresIn: '24h'
+      requiresOTP: true
     });
 
   } catch (error: any) {
@@ -117,22 +104,8 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // Crear token JWT para administrador
-    const token = jwt.sign(
-      {
-        userId: usuario.id,
-        email: usuario.email,
-        nombre: usuario.nombre,
-        rol: usuario.rol?.nombre,
-        isAdmin: true
-      },
-      privateKey,
-      {
-        algorithm: 'RS256',
-        expiresIn: '24h'
-      }
-    );
-
+    // NO generar token aquí - solo retornar datos del usuario
+    // El token se generará después de verificar el OTP
     res.json({
       usuario: {
         id: usuario.id,
@@ -145,8 +118,8 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
         estado: usuario.estado,
         rol: usuario.rol
       },
-      token: token,
-      expiresIn: '24h'
+      requiresOTP: true,
+      isAdmin: true
     });
 
   } catch (error: any) {
@@ -201,4 +174,117 @@ export const verifyToken = async (req: Request, res: Response): Promise<void> =>
     console.error('Error al verificar token:', error);
     res.status(401).json({ error: 'Token inválido o expirado' });
   }
-}; 
+};
+
+// Solicitar OTP para verificación de dos factores
+export const solicitarOTP = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ error: 'Email es requerido' });
+      return;
+    }
+
+    // Verificar que el usuario existe
+    const usuario = await usuarioRepository.findOne({
+      where: { email },
+      relations: ['estado']
+    });
+
+    if (!usuario) {
+      res.status(404).json({ error: 'Usuario no encontrado' });
+      return;
+    }
+
+    if (usuario.estado?.nombre?.toLowerCase() !== 'activo') {
+      res.status(401).json({ error: 'Usuario inactivo o suspendido' });
+      return;
+    }
+
+    // Crear y enviar OTP
+    const resultado = await crearOTP(email, usuario.id);
+
+    if (!resultado) {
+      res.status(500).json({ error: 'No se pudo enviar el código OTP' });
+      return;
+    }
+
+    res.json({
+      mensaje: 'Código OTP enviado al email',
+      email: email
+    });
+
+  } catch (error: any) {
+    console.error('Error al solicitar OTP:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+// Verificar OTP
+export const verificarOTP = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, codigo } = req.body;
+
+    if (!email || !codigo) {
+      res.status(400).json({ error: 'Email y código OTP son requeridos' });
+      return;
+    }
+
+    // Validar OTP
+    const esValido = await validarOTP(email, codigo);
+
+    if (!esValido) {
+      await registrarIntentoOTP(email);
+      res.status(401).json({ error: 'Código OTP inválido o expirado' });
+      return;
+    }
+
+    // OTP válido, generar token
+    const usuario = await usuarioRepository.findOne({
+      where: { email },
+      relations: ['estado', 'rol']
+    });
+
+    if (!usuario) {
+      res.status(404).json({ error: 'Usuario no encontrado' });
+      return;
+    }
+
+    const token = jwt.sign(
+      {
+        userId: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        rol: usuario.rol?.nombre,
+        verificado2FA: true
+      },
+      privateKey,
+      {
+        algorithm: 'RS256',
+        expiresIn: '24h'
+      }
+    );
+
+    res.json({
+      usuario: {
+        id: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        direccion: usuario.direccion || "",
+        telefono: usuario.telefono,
+        ciudad: usuario.ciudad,
+        codigoPostal: usuario.codigoPostal,
+        estado: usuario.estado,
+        rol: usuario.rol
+      },
+      token: token,
+      expiresIn: '24h',
+      mensaje: 'Verificación completada'
+    });
+
+  } catch (error: any) {
+    console.error('Error al verificar OTP:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};

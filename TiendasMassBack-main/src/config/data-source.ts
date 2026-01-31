@@ -11,9 +11,9 @@ export const AppDataSource = new DataSource({
   host:  "localhost",
   port:  3306,
   username:  "root",
-  password:  "123456789",
+  password:  "Jake170702",
   database:  "tiendasmass",
-  synchronize: true,
-  logging: true,
+  synchronize: false,
+  logging: false,
   entities: [isCompiled ? "dist/entities/**/*.js" : "src/entities/**/*.ts"],
 });
