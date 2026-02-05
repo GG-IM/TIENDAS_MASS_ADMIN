@@ -25,6 +25,7 @@ import tiendaRoutes from "./routes/tienda.routes";
 import tipoClienteRoutes from "./routes/tipoCliente.routes";
 import clienteRoutes from "./routes/cliente.routes";
 import { TipoCliente } from "./entities/TipoCliente.entity";
+import masterTableRoutes from "./routes/masterTable.routes";
 
 
 // === MERCADO PAGO ===
@@ -80,6 +81,8 @@ app.use("/api/tarjetas-usuario", tarjetaUsuarioRoutes);
 app.use("/api/tiendas", tiendaRoutes);
 app.use("/api", tipoClienteRoutes);
 app.use("/api", clienteRoutes);
+app.use("/api/master-table", masterTableRoutes);
+
 
 app.get("/", (_req, res) => {
   res.send("🚀 Bienvenido a TiendasMass API. Backend corriendo con éxito.");
