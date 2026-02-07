@@ -1,6 +1,6 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -13,7 +13,7 @@ import {
 @Entity("MasterTable")
 @Index(["parentId", "value"], { unique: true }) // value único por parent
 export class MasterTable {
-  @PrimaryGeneratedColumn({ name: "idMasterTable" })
+  @PrimaryColumn({ name: "idMasterTable", type: "int" })
   id: number;
 
   @Column({ name: "idMasterTableParent", type: "int", nullable: true })

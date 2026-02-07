@@ -84,7 +84,31 @@ export const masterTableController = {
         if (existsChild) return res.status(409).json({ message: "Ya existe ese value en ese parentId" });
       }
 
+      // Generar ID automáticamente basado en la estructura jerárquica
+      let id: number;
+      
+      if (parentId === null) {
+        // Es una tabla padre: buscar el próximo múltiplo de 100
+        const maxParent = await repo()
+          .createQueryBuilder("mt")
+          .where("mt.parentId IS NULL")
+          .orderBy("mt.id", "DESC")
+          .getOne();
+        
+        id = maxParent ? maxParent.id + 100 : 100;
+      } else {
+        // Es un hijo: buscar el próximo ID después del último hijo del mismo padre
+        const maxChild = await repo()
+          .createQueryBuilder("mt")
+          .where("mt.parentId = :parentId", { parentId })
+          .orderBy("mt.id", "DESC")
+          .getOne();
+        
+        id = maxChild ? maxChild.id + 1 : parentId + 1;
+      }
+
       const item = repo().create({
+        id,
         parentId,
         value,
         description: body.description ?? null,

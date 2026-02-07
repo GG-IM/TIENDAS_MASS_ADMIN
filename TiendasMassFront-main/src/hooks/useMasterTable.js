@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const API_URL = 'http://localhost:3001/api/master-table';
+const API_URL = 'http://localhost:5001/api/master-table';
 
 /**
  * Hook custom para gestionar los datos de la Tabla Maestra

@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
   username:  "root",
   password:  "Jake170702",
   database:  "tiendasmass",
-  synchronize: true,
-  logging: true,
+  synchronize: false,
+  logging: false,
   entities: [isCompiled ? "dist/entities/**/*.js" : "src/entities/**/*.ts"],
 });
