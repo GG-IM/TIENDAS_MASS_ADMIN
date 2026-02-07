@@ -1,144 +1,184 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const API_URL = 'http://localhost:3001/api/master-table';
 
 /**
  * Hook custom para gestionar los datos de la Tabla Maestra
- * Puede ser reemplazado con llamadas a API cuando el backend esté listo
+ * Conectado con la API del backend
  */
 export const useMasterTable = () => {
-  const [masterTableData, setMasterTableData] = useState([
-    {
-      idMasterTable: 100,
-      idMasterTableParent: null,
-      value: null,
-      description: 'Sexo colaborador',
-      name: 'Sexo',
-      order: 0,
-      additionalOne: '–',
-      additionalTwo: '–',
-      additionalThree: '–',
-      userNew: 'ADMIN',
-      dateNew: '2025/01/30',
-      userEdit: '–',
-      dateEdit: '–',
-      state: 'A'
-    },
-    {
-      idMasterTable: 101,
-      idMasterTableParent: 100,
-      value: 'M',
-      description: 'Sexo masculino',
-      name: 'Masculino',
-      order: 1,
-      additionalOne: '–',
-      additionalTwo: '–',
-      additionalThree: '–',
-      userNew: 'ADMIN',
-      dateNew: '2025/01/30',
-      userEdit: '–',
-      dateEdit: '–',
-      state: 'A'
-    },
-    {
-      idMasterTable: 102,
-      idMasterTableParent: 100,
-      value: 'F',
-      description: 'Sexo femenino',
-      name: 'Femenino',
-      order: 2,
-      additionalOne: '–',
-      additionalTwo: '–',
-      additionalThree: '–',
-      userNew: 'ADMIN',
-      dateNew: '2025/01/30',
-      userEdit: '–',
-      dateEdit: '–',
-      state: 'A'
-    },
-    {
-      idMasterTable: 200,
-      idMasterTableParent: null,
-      value: null,
-      description: 'Tipo documento',
-      name: 'TipoDocumento',
-      order: 0,
-      additionalOne: '–',
-      additionalTwo: '–',
-      additionalThree: '–',
-      userNew: 'ADMIN',
-      dateNew: '2025/01/30',
-      userEdit: '–',
-      dateEdit: '–',
-      state: 'A'
-    },
-    {
-      idMasterTable: 201,
-      idMasterTableParent: 200,
-      value: 'DNI',
-      description: 'Doc. Nacional Id.',
-      name: 'Doc_Nacional',
-      order: 1,
-      additionalOne: '–',
-      additionalTwo: '–',
-      additionalThree: '–',
-      userNew: 'ADMIN',
-      dateNew: '2025/01/30',
-      userEdit: '–',
-      dateEdit: '–',
-      state: 'A'
-    },
-    {
-      idMasterTable: 202,
-      idMasterTableParent: 200,
-      value: 'PT',
-      description: 'Pasaporte',
-      name: 'Pasaporte',
-      order: 2,
-      additionalOne: '–',
-      additionalTwo: '–',
-      additionalThree: '–',
-      userNew: 'ADMIN',
-      dateNew: '2025/01/30',
-      userEdit: '–',
-      dateEdit: '–',
-      state: 'A'
-    }
-  ]);
+  const [masterTableData, setMasterTableData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const addRecord = (formData) => {
-    const newId = Math.max(...masterTableData.map((d) => d.idMasterTable)) + 1;
-    setMasterTableData([
-      ...masterTableData,
-      {
-        ...formData,
-        idMasterTable: newId,
+  // Obtener token del localStorage
+  const getAuthToken = () => {
+    const token = localStorage.getItem('token');
+    return token;
+  };
+
+  // Headers con autenticación
+  const getHeaders = () => {
+    const token = getAuthToken();
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+    };
+  };
+
+  // Cargar datos del backend
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(API_URL, {
+        method: 'GET',
+        headers: getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      // Mapear campos del backend al frontend (id -> idMasterTable, parentId -> idMasterTableParent, status -> state)
+      const mappedData = data.map((item) => ({
+        idMasterTable: item.id,
+        idMasterTableParent: item.parentId,
+        value: item.value,
+        description: item.description,
+        name: item.name,
+        order: item.order,
+        additionalOne: item.additionalOne || '–',
+        additionalTwo: item.additionalTwo || '–',
+        additionalThree: item.additionalThree || '–',
+        userNew: item.userNew || 'ADMIN',
+        dateNew: item.dateNew ? new Date(item.dateNew).toLocaleDateString('es-PE') : '–',
+        userEdit: item.userEdit || '–',
+        dateEdit: item.dateEdit ? new Date(item.dateEdit).toLocaleDateString('es-PE') : '–',
+        state: item.status || 'A',
+      }));
+      setMasterTableData(mappedData);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error al cargar tabla maestra:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Crear nuevo registro
+  const addRecord = async (formData) => {
+    try {
+      setLoading(true);
+      const payload = {
+        parentId: formData.idMasterTableParent || null,
+        value: formData.value || null,
+        description: formData.description || null,
+        name: formData.name,
+        order: formData.order || 0,
+        additionalOne: formData.additionalOne || null,
+        additionalTwo: formData.additionalTwo || null,
+        additionalThree: formData.additionalThree || null,
         userNew: localStorage.getItem('adminUser')
           ? JSON.parse(localStorage.getItem('adminUser')).nombre
           : 'ADMIN',
-        dateNew: new Date().toLocaleDateString('es-PE'),
+        status: formData.state || 'A',
+      };
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al crear registro');
       }
-    ]);
+
+      const newRecord = await response.json();
+      // Refrescar datos
+      await fetchData();
+      return newRecord;
+    } catch (err) {
+      setError(err.message);
+      console.error('Error al crear registro:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateRecord = (idMasterTable, formData) => {
-    setMasterTableData(
-      masterTableData.map((item) =>
-        item.idMasterTable === idMasterTable
-          ? {
-              ...formData,
-              userEdit: localStorage.getItem('adminUser')
-                ? JSON.parse(localStorage.getItem('adminUser')).nombre
-                : 'ADMIN',
-              dateEdit: new Date().toLocaleDateString('es-PE'),
-            }
-          : item
-      )
-    );
+  // Actualizar registro
+  const updateRecord = async (idMasterTable, formData) => {
+    try {
+      setLoading(true);
+      const payload = {
+        parentId: formData.idMasterTableParent || null,
+        value: formData.value || null,
+        description: formData.description || null,
+        name: formData.name,
+        order: formData.order || 0,
+        additionalOne: formData.additionalOne || null,
+        additionalTwo: formData.additionalTwo || null,
+        additionalThree: formData.additionalThree || null,
+        userEdit: localStorage.getItem('adminUser')
+          ? JSON.parse(localStorage.getItem('adminUser')).nombre
+          : 'ADMIN',
+        status: formData.state || 'A',
+      };
+
+      const response = await fetch(`${API_URL}/${idMasterTable}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar registro');
+      }
+
+      // Refrescar datos
+      await fetchData();
+    } catch (err) {
+      setError(err.message);
+      console.error('Error al actualizar registro:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteRecord = (idMasterTable) => {
-    setMasterTableData(
-      masterTableData.filter((item) => item.idMasterTable !== idMasterTable)
-    );
+  // Eliminar registro
+  const deleteRecord = async (idMasterTable) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/${idMasterTable}`, {
+        method: 'DELETE',
+        headers: getHeaders(),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al eliminar registro');
+      }
+
+      // Refrescar datos
+      await fetchData();
+    } catch (err) {
+      setError(err.message);
+      console.error('Error al eliminar registro:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getHierarchicalData = () => {
@@ -156,5 +196,8 @@ export const useMasterTable = () => {
     deleteRecord,
     getHierarchicalData,
     getChildrenItems,
+    loading,
+    error,
+    refetch: fetchData,
   };
 };
