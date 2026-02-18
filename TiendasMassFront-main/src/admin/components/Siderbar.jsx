@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut ,Store, Database } from 'lucide-react';
+import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut ,Store, Database, Lock } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const URL = "http://localhost:5000"; // URL de Azure
@@ -10,6 +10,8 @@ const Sidebar = ({ collapsed, onToggle }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // === Array de items del menú - incluye todas las opciones del panel admin ===
+  // === Item agregado para acceder a la gestión de permisos (ruta /admin/permisos) ===
   const menuItems = [
     { to: '/admin/dashboard', label: 'Dashboard', icon: Home },
     { to: '/admin/productos', label: 'Productos', icon: Package },
@@ -22,6 +24,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
     { to: '/admin/crear-admin', label: 'Crear Admin', icon: UserPlus },
     { to: '/admin/tiendas', label: 'Tiendas', icon: Store },
     { to: '/admin/tabla-maestra', label: 'Tabla Maestra', icon: Database }, // ✅ NUEVO
+    { to: '/admin/permisos', label: 'Permisos', icon: Lock }, // ✅ NUEVO PARA PERMISOS
   ];
 
   const handleLogout = () => {

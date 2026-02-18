@@ -25,6 +25,7 @@ import CrearAdmin from './admin/components/CrearAdmin';
 import AdminRoute from './components/AdminRoute';
 import GestionTienda from './admin/components/GestionTienda';
 import GestionMasterTable from './admin/components/GestionMasterTable'; // ✅ NUEVO
+import GestionPermisos from './admin/components/GestionPermisos'; // ✅ NUEVO PARA PERMISOS
 
 import { initMercadoPago } from '@mercadopago/sdk-react';
 
@@ -62,6 +63,8 @@ function App() {
               <Route path="crear-admin" element={<CrearAdmin />} />
               <Route path="tiendas" element={<GestionTienda />} />
               <Route path="tabla-maestra" element={<GestionMasterTable />} /> {/* ✅ NUEVO */}
+              {/* === Ruta para gestionar permisos por rol - Asigna módulos y acciones a roles === */}
+              <Route path="permisos" element={<GestionPermisos />} /> {/* ✅ NUEVO PARA PERMISOS */}
             </Route>
 
             {/* Rutas públicas */}
