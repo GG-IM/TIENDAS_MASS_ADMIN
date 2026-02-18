@@ -26,6 +26,7 @@ import tipoClienteRoutes from "./routes/tipoCliente.routes";
 import clienteRoutes from "./routes/cliente.routes";
 import { TipoCliente } from "./entities/TipoCliente.entity";
 import masterTableRoutes from "./routes/masterTable.routes";
+import permisosRoutes from "./routes/permisos.routes";
 
 
 // === MERCADO PAGO ===
@@ -82,6 +83,8 @@ app.use("/api/tiendas", tiendaRoutes);
 app.use("/api", tipoClienteRoutes);
 app.use("/api", clienteRoutes);
 app.use("/api/master-table", masterTableRoutes);
+//rutas nuevas para roles asignados
+app.use("/api/permisos", permisosRoutes);
 
 
 app.get("/", (_req, res) => {

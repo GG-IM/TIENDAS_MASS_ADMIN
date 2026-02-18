@@ -1,12 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { RolPermiso } from "./RolPermiso.entity";
 
-} from 'typeorm';
-
-
-@Entity('Rol')
+@Entity("Rol")
 export class Rol {
   @PrimaryGeneratedColumn()
   id: number;
@@ -14,8 +9,9 @@ export class Rol {
   @Column()
   nombre: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   descripcion: string;
 
- 
+  @OneToMany(() => RolPermiso, (rp) => rp.rol)
+  rolPermisos: RolPermiso[];
 }
