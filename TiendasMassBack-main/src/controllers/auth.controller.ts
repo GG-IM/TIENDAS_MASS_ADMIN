@@ -65,7 +65,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// Login específico para administradores
+// Login específico para administradores (ahora permite cualquier usuario con permisos)
 export const adminLogin = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
@@ -91,10 +91,12 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // Verificar si el usuario es administrador
+    // Verificar si es administrador O tiene un rol asignado (para usuarios con permisos específicos)
     const rolNombre = usuario.rol?.nombre?.toLowerCase();
-    if (!rolNombre || (!rolNombre.includes('admin') && !rolNombre.includes('administrador'))) {
-      res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de administrador' });
+    const esAdmin = rolNombre && (rolNombre.includes('admin') || rolNombre.includes('administrador'));
+    
+    if (!usuario.rol) {
+      res.status(403).json({ error: 'Acceso denegado. Usuario sin rol asignado' });
       return;
     }
 
@@ -104,8 +106,21 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // NO generar token aquí - solo retornar datos del usuario
-    // El token se generará después de verificar el OTP
+    // Generar token JWT para el usuario
+    const token = jwt.sign(
+      {
+        userId: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        rol: usuario.rol?.nombre,
+      },
+      privateKey,
+      {
+        algorithm: 'RS256',
+        expiresIn: '24h'
+      }
+    );
+
     res.json({
       usuario: {
         id: usuario.id,
@@ -118,8 +133,8 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
         estado: usuario.estado,
         rol: usuario.rol
       },
-      requiresOTP: true,
-      isAdmin: true
+      token: token,
+      isAdmin: esAdmin
     });
 
   } catch (error: any) {
