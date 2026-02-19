@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut ,Store, Database } from 'lucide-react';
+import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut ,Store, Database, Lock } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useUsuario } from '../../context/userContext';
 
@@ -28,6 +28,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
     { to: '/admin/crear-admin', label: 'Crear Admin', icon: UserPlus, modulo: 'USUARIOS' },
     { to: '/admin/tiendas', label: 'Tiendas', icon: Store, modulo: 'TIENDAS' },
     { to: '/admin/tabla-maestra', label: 'Tabla Maestra', icon: Database, modulo: 'MASTER_TABLE' },
+    { to: '/admin/permisos', label: 'Permisos', icon: Lock, modulo: 'MASTER_TABLE' }, // Nueva ruta para permisos
   ];
 
   // Obtener permisos del usuario

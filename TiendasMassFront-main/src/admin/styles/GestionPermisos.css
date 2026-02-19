@@ -1,0 +1,458 @@
+/* Gestión de Permisos Styles */
+
+/* === Contenedor principal y header === */
+.gestion-permisos {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.permisos-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.permisos-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.permisos-header p {
+  color: #7f8c8d;
+  font-size: 1rem;
+}
+
+.permisos-container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* === Selector de Rol - Dropdown y estilos === */
+.rol-selector {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rol-selector label {
+  font-weight: 600;
+  color: #2c3e50;
+  min-width: 150px;
+}
+
+.rol-selector select {
+  flex: 1;
+  max-width: 400px;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.rol-selector select:hover:not(:disabled) {
+  border-color: #3498db;
+}
+
+.rol-selector select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.rol-selector select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* === Info del Rol - Muestra estadísticas en tarjetas === */
+.rol-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
+}
+
+.info-item .label {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.info-item .valor {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-top: 0.25rem;
+}
+
+.info-item .valor.changed {
+  color: #e74c3c;
+}
+
+/* === Botones de Control - Seleccionar/Desseleccionar/Restaurar === */
+.permisos-controles {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn-control {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-select-all {
+  background-color: #27ae60;
+  color: white;
+}
+
+.btn-select-all:hover {
+  background-color: #229954;
+  box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+}
+
+.btn-deselect-all {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-deselect-all:hover {
+  background-color: #c0392b;
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+.btn-reset {
+  background-color: #f39c12;
+  color: white;
+}
+
+.btn-reset:hover:not(:disabled) {
+  background-color: #d68910;
+  box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
+}
+
+.btn-reset:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* === Loading - Estado de carga de permisos === */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #7f8c8d;
+}
+
+/* === Tabla de Permisos - Matriz con estilos interactivos === */
+.permisos-matriz {
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-permisos {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.table-permisos thead {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-permisos th {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #ddd;
+}
+
+.modulo-header {
+  text-align: left;
+  width: 20%;
+}
+
+.accion-header {
+  font-size: 0.9rem;
+  min-width: 120px;
+}
+
+.table-permisos tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.table-permisos tbody tr:hover {
+  background-color: #ecf0f1;
+}
+
+.modulo-row {
+  border-bottom: 1px solid #ddd;
+}
+
+.modulo-name {
+  padding: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  background: white;
+  border-right: 2px solid #e0e0e0;
+}
+
+.permiso-cell {
+  padding: 0.75rem;
+  text-align: center;
+  border: 1px solid #ddd;
+  transition: background-color 0.2s ease;
+}
+
+.permiso-cell.checked {
+  background-color: #d5f4e6;
+}
+
+.permiso-cell.changed {
+  background-color: #fff3cd;
+}
+
+.permiso-cell.checked.changed {
+  background-color: #d1ecf1;
+}
+
+/* === Checkbox Custom - Input personalizado con animación === */
+.checkbox-container {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  display: none;
+}
+
+.checkmark {
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+  background-color: #ecf0f1;
+  border: 2px solid #bdc3c7;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: #27ae60;
+  border-color: #229954;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-container:hover .checkmark {
+  border-color: #3498db;
+}
+
+/* === Botones de Acción Finales - Guardar e indicador de estado === */
+.permisos-acciones {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #ecf0f1;
+}
+
+.btn-guardar {
+  padding: 0.85rem 2rem;
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3);
+}
+
+.btn-guardar:hover:not(:disabled) {
+  box-shadow: 0 6px 12px rgba(39, 174, 96, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-guardar:disabled {
+  background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.estado-permisos {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.icon-warning {
+  color: #e74c3c;
+}
+
+.icon-success {
+  color: #27ae60;
+}
+
+/* === No Selection - Mensaje cuando no hay rol seleccionado === */
+.no-selection {
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  background: #ecf0f1;
+  border-radius: 8px;
+  border: 2px dashed #bdc3c7;
+}
+
+/* === Responsive Design - Adaptación a diferentes tamaños de pantalla === */
+@media (max-width: 768px) {
+  .permisos-header h1 {
+    font-size: 2rem;
+  }
+
+  .rol-selector {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rol-selector select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .permisos-controles {
+    justify-content: center;
+  }
+
+  .btn-control {
+    flex: 1;
+    min-width: 150px;
+    justify-content: center;
+  }
+
+  .rol-info {
+    grid-template-columns: 1fr;
+  }
+
+  .table-permisos {
+    font-size: 0.9rem;
+  }
+
+  .modulo-header {
+    width: 30%;
+  }
+
+  .accion-header {
+    min-width: 80px;
+  }
+
+  .permisos-acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-guardar {
+    justify-content: center;
+  }
+
+  .estado-permisos {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .gestion-permisos {
+    padding: 1rem;
+  }
+
+  .permisos-container {
+    padding: 1rem;
+  }
+
+  .permisos-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .table-permisos {
+    font-size: 0.8rem;
+  }
+
+  .modulo-name {
+    padding: 0.5rem;
+  }
+
+  .permiso-cell {
+    padding: 0.5rem;
+  }
+
+  .table-permisos th {
+    padding: 0.5rem 0.25rem;
+  }
+}
+/* FIN DEL ARCHIVO CSS */
