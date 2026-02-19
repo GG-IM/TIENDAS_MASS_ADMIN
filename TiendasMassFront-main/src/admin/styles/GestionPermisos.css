@@ -255,6 +255,21 @@
   background-color: #d1ecf1;
 }
 
+/* === Unchecked cells (highlight in red) === */
+.permiso-cell.unchecked {
+  background-color: #fdecea; /* light red */
+  color: #7a1f1f;
+}
+
+.permiso-cell.unchecked .checkmark {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.permiso-cell.unchecked:hover {
+  background-color: #f8d0d3;
+}
+
 /* === Checkbox Custom - Input personalizado con animación === */
 .checkbox-container {
   display: inline-block;

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Save, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 import swal from 'sweetalert2';
 import '../styles/GestionPermisos.css';
+import { useUsuario } from '../../context/userContext';
 
 const API_URL = 'http://localhost:5001';
 
@@ -22,13 +23,7 @@ const GestionPermisos = () => {
   const [permisosSeleccionados, setPermisosSeleccionados] = useState(new Set());
   const [loading, setLoading] = useState(false);
   const [guardando, setGuardando] = useState(false);
-  const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-
-  // === Headers para autenticación en peticiones ===
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  };
+  const { getAuthHeaders } = useUsuario();
 
   // === Al montar el componente, carga roles y catálogo ===
   useEffect(() => {
@@ -39,7 +34,7 @@ const GestionPermisos = () => {
   // === Obtiene lista de roles del backend (GET /api/roles) ===
   const fetchRoles = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/roles`, { headers });
+      const response = await axios.get(`${API_URL}/api/roles`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } });
       setRoles(response.data);
     } catch (error) {
       console.error('Error al obtener roles:', error);
@@ -54,7 +49,7 @@ const GestionPermisos = () => {
   // === Obtiene módulos y acciones disponibles (GET /api/permisos/catalogo) ===
   const fetchCatalogo = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/permisos/catalogo`, { headers });
+      const response = await axios.get(`${API_URL}/api/permisos/catalogo`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } });
       setCatalogo(response.data);
       // Si el catálogo viene vacío, sugerir seed
       if (!response.data || !response.data.modulos || response.data.modulos.length === 0) {
@@ -88,7 +83,7 @@ const GestionPermisos = () => {
   const fetchPermisosRol = async (roleId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/permisos/roles/${roleId}`, { headers });
+      const response = await axios.get(`${API_URL}/api/permisos/roles/${roleId}`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } });
       
       const { permisos, roleName } = response.data;
       setSelectedRoleName(roleName);
@@ -162,7 +157,7 @@ const GestionPermisos = () => {
       const response = await axios.put(
         `${API_URL}/api/permisos/roles/${selectedRoleId}`,
         { permisos },
-        { headers }
+        { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } }
       );
 
       swal.fire({
@@ -316,7 +311,7 @@ const GestionPermisos = () => {
                           return (
                             <td
                               key={key}
-                              className={`permiso-cell ${isChecked ? 'checked' : ''} ${hasChanged ? 'changed' : ''}`}
+                              className={`permiso-cell ${isChecked ? 'checked' : 'unchecked'} ${hasChanged ? 'changed' : ''}`}
                             >
                               <label className="checkbox-container">
                                 <input
