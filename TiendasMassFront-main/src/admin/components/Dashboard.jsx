@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Package, Users, ShoppingCart, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useUsuario } from '../../context/userContext';
+
 const API_URL = "http://localhost:5001";
+
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { getToken } = useUsuario();
   const [dashboardData, setDashboardData] = useState({
     estadisticas: {
       totalProductos: 0,
@@ -23,6 +29,64 @@ const Dashboard = () => {
     pedidosRecientes: []
   });
   const [loading, setLoading] = useState(true);
+
+  // Verificar si tiene permiso al Dashboard al cargar
+  useEffect(() => {
+    verificarPermisoDashboard();
+  }, [getToken]);
+
+  const verificarPermisoDashboard = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        navigate('/admin/productos');
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/permisos/me/modulos`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        navigate('/admin/productos');
+        return;
+      }
+
+      const data = await response.json();
+      
+      // Si no tiene permiso en DASHBOARD, redirigir al primer módulo disponible
+      if (!data.modulos || !data.modulos.includes('DASHBOARD')) {
+        if (data.modulos && data.modulos.length > 0) {
+          // Mapear módulo a ruta
+          const moduloRuta = {
+            'PRODUCTOS': '/admin/productos',
+            'CATEGORIAS': '/admin/categorias',
+            'SUBCATEGORIAS': '/admin/subcategorias',
+            'USUARIOS': '/admin/usuarios',
+            'PEDIDOS': '/admin/reportes',
+            'ESTADOS': '/admin/estados',
+            'METODO_PAGO': '/admin/metodos-pago',
+            'TIENDAS': '/admin/tiendas',
+            'MASTER_TABLE': '/admin/tabla-maestra'
+          };
+          
+          const primeraRuta = moduloRuta[data.modulos[0]] || '/admin/productos';
+          navigate(primeraRuta, { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
+        return;
+      }
+
+      loadDashboardData();
+    } catch (error) {
+      console.error('Error al verificar permiso:', error);
+      navigate('/admin/productos');
+    }
+  };
 
   // Cargar datos del dashboard desde el backend
   const loadDashboardData = async () => {
@@ -45,10 +109,6 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
 
   const stats = [
     {

@@ -1,28 +1,78 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, UserPlus, LogOut ,Store, Database } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useUsuario } from '../../context/userContext';
 
 const URL = "http://localhost:5000"; // URL de Azure
+const API_URL = "http://localhost:5001";
 
 const Sidebar = ({ collapsed, onToggle }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { getToken } = useUsuario();
+  const [modulosPermitidos, setModulosPermitidos] = useState([]);
+  const [cargando, setCargando] = useState(true);
 
-  const menuItems = [
-    { to: '/admin/dashboard', label: 'Dashboard', icon: Home },
-    { to: '/admin/productos', label: 'Productos', icon: Package },
-    { to: '/admin/categorias', label: 'Categorías', icon: Folder },
-    { to: '/admin/subcategorias', label: 'Subcategorías', icon: Folder },
-    { to: '/admin/usuarios', label: 'Usuarios', icon: Users },
-    { to: '/admin/reportes', label: 'Pedidos', icon: ShoppingCart },
-    { to: '/admin/estados', label: 'Estados', icon: Settings },
-    { to: '/admin/metodos-pago', label: 'Métodos de Pago', icon: CreditCard },
-    { to: '/admin/crear-admin', label: 'Crear Admin', icon: UserPlus },
-    { to: '/admin/tiendas', label: 'Tiendas', icon: Store },
-    { to: '/admin/tabla-maestra', label: 'Tabla Maestra', icon: Database }, // ✅ NUEVO
+  // Mapeo de módulos a items del menú
+  const allMenuItems = [
+    { to: '/admin/dashboard', label: 'Dashboard', icon: Home, modulo: 'DASHBOARD' },
+    { to: '/admin/productos', label: 'Productos', icon: Package, modulo: 'PRODUCTOS' },
+    { to: '/admin/categorias', label: 'Categorías', icon: Folder, modulo: 'CATEGORIAS' },
+    { to: '/admin/subcategorias', label: 'Subcategorías', icon: Folder, modulo: 'SUBCATEGORIAS' },
+    { to: '/admin/usuarios', label: 'Usuarios', icon: Users, modulo: 'USUARIOS' },
+    { to: '/admin/reportes', label: 'Pedidos', icon: ShoppingCart, modulo: 'PEDIDOS' },
+    { to: '/admin/estados', label: 'Estados', icon: Settings, modulo: 'ESTADOS' },
+    { to: '/admin/metodos-pago', label: 'Métodos de Pago', icon: CreditCard, modulo: 'METODO_PAGO' },
+    { to: '/admin/crear-admin', label: 'Crear Admin', icon: UserPlus, modulo: 'USUARIOS' },
+    { to: '/admin/tiendas', label: 'Tiendas', icon: Store, modulo: 'TIENDAS' },
+    { to: '/admin/tabla-maestra', label: 'Tabla Maestra', icon: Database, modulo: 'MASTER_TABLE' },
   ];
+
+  // Obtener permisos del usuario
+  useEffect(() => {
+    const fetchModulos = async () => {
+      try {
+        const token = getToken();
+        if (!token) {
+          setCargando(false);
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/api/permisos/me/modulos`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          console.error('Error al obtener permisos:', response.status);
+          setCargando(false);
+          return;
+        }
+
+        const data = await response.json();
+        setModulosPermitidos(data.modulos || []);
+      } catch (error) {
+        console.error('Error al cargar permisos:', error);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    fetchModulos();
+  }, [getToken]);
+
+  // Filtrar items según permisos
+  const menuItems = allMenuItems.filter(item => {
+    // Si aún está cargando, no mostrar nada
+    if (cargando) return false;
+    
+    // Mostrar item si el módulo está en los permisos
+    return modulosPermitidos.includes(item.modulo);
+  });
 
   const handleLogout = () => {
     Swal.fire({
@@ -90,22 +140,36 @@ const Sidebar = ({ collapsed, onToggle }) => {
       )}
 
       <ul className="sidebar-nav">
-        {menuItems.map((item) => {
-          const IconComponent = item.icon;
-          const isActive = location.pathname === item.to;
+        {cargando ? (
+          <li className="nav-item">
+            <span className="nav-text" style={{ textAlign: 'center', color: '#999', fontSize: '12px', padding: '10px' }}>
+              Cargando permisos...
+            </span>
+          </li>
+        ) : menuItems.length === 0 ? (
+          <li className="nav-item">
+            <span className="nav-text" style={{ textAlign: 'center', color: '#999', fontSize: '12px', padding: '10px' }}>
+              Sin acceso a módulos
+            </span>
+          </li>
+        ) : (
+          menuItems.map((item) => {
+            const IconComponent = item.icon;
+            const isActive = location.pathname === item.to;
 
-          return (
-            <li key={item.to} className="nav-item">
-              <Link
-                to={item.to}
-                className={`nav-link ${isActive ? 'active' : ''}`}
-              >
-                <IconComponent className="nav-icon" />
-                {!collapsed && <span className="nav-text">{item.label}</span>}
-              </Link>
-            </li>
-          );
-        })}
+            return (
+              <li key={item.to} className="nav-item">
+                <Link
+                  to={item.to}
+                  className={`nav-link ${isActive ? 'active' : ''}`}
+                >
+                  <IconComponent className="nav-icon" />
+                  {!collapsed && <span className="nav-text">{item.label}</span>}
+                </Link>
+              </li>
+            );
+          })
+        )}
       </ul>
 
       {/* Botón de logout */}

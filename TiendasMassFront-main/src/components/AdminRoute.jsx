@@ -9,10 +9,16 @@ const AdminRoute = ({ children }) => {
   const { usuario } = useUsuario();
   const [checkingSetup, setCheckingSetup] = useState(true);
   const [needsSetup, setNeedsSetup] = useState(false);
+  const [tieneAcceso, setTieneAcceso] = useState(false);
+  const [verificando, setVerificando] = useState(true);
 
   useEffect(() => {
     checkSetupStatus();
   }, []);
+
+  useEffect(() => {
+    verificarAccesoAdmin();
+  }, [usuario]);
 
   const checkSetupStatus = async () => {
     try {
@@ -26,31 +32,92 @@ const AdminRoute = ({ children }) => {
     }
   };
 
-  if (checkingSetup) {
-    return <div>Verificando sistema...</div>;
+  const verificarAccesoAdmin = async () => {
+    setVerificando(true);
+    try {
+      // Opción 1: Verificar si está logueado como admin
+      const adminToken = localStorage.getItem('adminToken');
+      const adminUser = localStorage.getItem('adminUser');
+
+      if (adminToken && adminUser) {
+        try {
+          const userData = JSON.parse(adminUser);
+          // Verificar permisos del admin logueado
+          const response = await fetch(`${API_URL}/api/permisos/me/modulos`, {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            // Si tiene modulos, tiene acceso
+            setTieneAcceso(data.modulos && data.modulos.length > 0);
+            setVerificando(false);
+            return;
+          }
+        } catch (error) {
+          console.error('Error verificando permisos:', error);
+        }
+      }
+
+      // Opción 2: Verificar si es usuario normal autenticado con permisos
+      if (usuario) {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (token) {
+          try {
+            const response = await fetch(`${API_URL}/api/permisos/me/modulos`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              setTieneAcceso(data.modulos && data.modulos.length > 0);
+              setVerificando(false);
+              return;
+            }
+          } catch (error) {
+            console.error('Error verificando permisos:', error);
+          }
+        }
+      }
+
+      setTieneAcceso(false);
+    } finally {
+      setVerificando(false);
+    }
+  };
+
+  if (checkingSetup || verificando) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div>Verificando acceso...</div>
+    </div>;
   }
 
   if (needsSetup) {
     return <SetupAdmin />;
   }
 
-  // Si no hay usuario autenticado, redirigir al login normal
-  if (!usuario) {
+  // Verificar si está autenticado (admin o usuario normal)
+  const adminToken = localStorage.getItem('adminToken');
+  const estaLogueado = adminToken || usuario;
+
+  if (!estaLogueado) {
+    console.log('No está logueado');
     return <Navigate to="/login" />;
   }
 
-  // Verificar si es admin
-  const esAdmin = usuario && (
-    ["admin", "ADMIN", "Administrador"].includes(usuario.rol?.nombre) ||
-    usuario.rol?.id === 1 ||
-    usuario.rol?.id === 3
-  );
-
-  if (!esAdmin) {
+  // Verificar si tiene acceso
+  if (!tieneAcceso) {
+    console.log('No tiene acceso - sin permisos');
     return <Navigate to="/" />;
   }
 
-  // Si es admin, mostrar el contenido protegido
+  // Si tiene acceso, mostrar el contenido protegido
   return children;
 };
 

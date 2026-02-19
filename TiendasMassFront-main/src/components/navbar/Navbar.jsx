@@ -237,23 +237,63 @@ const Navbar = ({ abrirModal }) => {
   const [scrolled, setScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sugerencias, setSugerencias] = useState([]);
+  const [esAdmin, setEsAdmin] = useState(false);
+  const [verificandoAcceso, setVerificandoAcceso] = useState(false);
 
   const navigate = useNavigate();
-  const { usuario, logout } = useUsuario();
+  const { usuario, logout, getToken } = useUsuario();
   const { carrito } = useCarrito();
 
   const isLoggedIn = Boolean(usuario);
   const nombreUsuario = usuario?.nombre || 'Usuario';
   const totalItems = carrito.reduce((acc, producto) => acc + producto.cantidad, 0);
 
-  const esAdmin = usuario && (
-    ["admin", "ADMIN", "Administrador"].includes(usuario.rol?.nombre) ||
-    usuario.rol?.id === 1 ||
-    usuario.rol?.id === 3
-  );
+  // Verificar si tiene acceso al panel admin consultando permisos
+  useEffect(() => {
+    if (usuario && getToken()) {
+      verificarAccesoAdmin();
+    }
+  }, [usuario, getToken]);
+
+  const verificarAccesoAdmin = async () => {
+    setVerificandoAcceso(true);
+    try {
+      const token = getToken();
+      if (!token) {
+        setEsAdmin(false);
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/permisos/me/modulos`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Si tiene modulos asignados, tiene acceso al panel
+        setEsAdmin(data.modulos && data.modulos.length > 0);
+      } else {
+        setEsAdmin(false);
+      }
+    } catch (error) {
+      console.error('Error verificando acceso:', error);
+      // Fallback: permitir si es admin por nombre
+      const esAdminPorNombre = usuario && (
+        ["admin", "ADMIN", "Administrador", "administrador"].includes(usuario.rol?.nombre) ||
+        usuario.rol?.id === 1
+      );
+      setEsAdmin(esAdminPorNombre);
+    } finally {
+      setVerificandoAcceso(false);
+    }
+  };
 
   // Log para depuración
   console.log('Usuario actual:', usuario);
+  console.log('Tiene acceso al admin:', esAdmin);
 
   useEffect(() => {
     const handleScroll = () => {
