@@ -13,7 +13,8 @@ const CrearAdmin = () => {
     telefono: '',
     direccion: '',
     ciudad: '',
-    codigoPostal: ''
+    codigoPostal: '',
+    dni: '' 
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -59,12 +60,26 @@ const CrearAdmin = () => {
       [name]: value
     }));
 
-    // Validar campo en tiempo real (excepto confirmPassword)
-    if (name !== 'confirmPassword') {
+    // Validar campo en tiempo real (excepto confirmPassword y dni)
+    if (name !== 'confirmPassword' && name !== 'dni') {
       const error = validateField(name, value, false); // false = modo creación
       setFieldErrors(prev => ({
         ...prev,
         [name]: error
+      }));
+    } else if (name === 'dni') {
+      // Validar DNI en tiempo real
+      let error = null;
+      if (!value || value.trim().length === 0) {
+        error = 'El DNI es requerido';
+      } else if (value.trim().length !== 8) {
+        error = 'El DNI debe tener exactamente 8 dígitos';
+      } else if (!/^\d+$/.test(value.trim())) {
+        error = 'El DNI debe contener solo números';
+      }
+      setFieldErrors(prev => ({
+        ...prev,
+        dni: error
       }));
     } else {
       // Validar confirmación de contraseña
@@ -98,6 +113,15 @@ const CrearAdmin = () => {
       errors.rol = 'Debe seleccionar un rol';
     }
 
+    // ✅ Validar DNI - OBLIGATORIO y debe tener 8 dígitos
+    if (!formData.dni || formData.dni.trim().length === 0) {
+      errors.dni = 'El DNI es requerido';
+    } else if (formData.dni.trim().length !== 8) {
+      errors.dni = 'El DNI debe tener exactamente 8 dígitos';
+    } else if (!/^\d+$/.test(formData.dni.trim())) {
+      errors.dni = 'El DNI debe contener solo números';
+    }
+
     setFieldErrors(errors);
 
     // Si hay errores, solo retornar false (los errores se muestran en rojo debajo de cada campo)
@@ -118,12 +142,21 @@ const CrearAdmin = () => {
     try {
       const adminToken = localStorage.getItem('adminToken');
       const userData = {
-        ...formData,
-        rolId: parseInt(selectedRol)
+        nombre: formData.nombre,
+        email: formData.email,
+        password: formData.password,
+        telefono: formData.telefono || '',
+        direccion: formData.direccion || '',
+        ciudad: formData.ciudad || '',
+        codigoPostal: formData.codigoPostal || '',
+        rolId: parseInt(selectedRol),
+        estadoId: 1, // ✅ Por defecto activo
+        tipoClienteId: 1, // ✅ Por defecto tipo cliente natural
+        persona: { // ✅ Datos básicos de persona
+          nombre: formData.nombre,
+          numeroDocumento: formData.dni // ✅ DNI OBLIGATORIO
+        }
       };
-
-      // Remover confirmPassword del objeto
-      delete userData.confirmPassword;
 
       const response = await fetch(`${API_URL}/api/usuarios`, {
         method: 'POST',
@@ -153,14 +186,15 @@ const CrearAdmin = () => {
           telefono: '',
           direccion: '',
           ciudad: '',
-          codigoPostal: ''
+          codigoPostal: '',
+          dni: '' // ✅ Limpia DNI también
         });
         setSelectedRol('');
       } else {
         Swal.fire({
           icon: 'error',
           title: 'Error al Crear Usuario',
-          text: data.error || 'No se pudo crear el usuario',
+          text: data.message || data.error || 'No se pudo crear el usuario',
           confirmButtonText: 'Intentar de nuevo'
         });
       }
@@ -195,7 +229,8 @@ const CrearAdmin = () => {
           telefono: '',
           direccion: '',
           ciudad: '',
-          codigoPostal: ''
+          codigoPostal: '',
+          dni: '' // ✅ Limpia DNI también
         });
         setSelectedRol('');
       }
@@ -357,6 +392,27 @@ const CrearAdmin = () => {
               )}
             </div>
           </div>
+
+          <div className="form-group">
+            <label htmlFor="dni">
+              <FaUser className="input-icon" />
+                DNI *
+              </label>
+              <input
+                type="text"
+                id="dni"
+                name="dni"
+                value={formData.dni}
+                onChange={handleInputChange}
+                placeholder="12345678"
+                maxLength="8"
+                required
+                className={`form-input ${fieldErrors.dni ? 'is-invalid' : ''}`}
+              />
+              {fieldErrors.dni && (
+                <div className="invalid-feedback">{fieldErrors.dni}</div>
+              )}
+            </div>
 
           <div className="form-group">
             <label htmlFor="direccion">

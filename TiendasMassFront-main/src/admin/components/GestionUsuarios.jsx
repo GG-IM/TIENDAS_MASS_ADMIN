@@ -35,6 +35,7 @@ const GestionUsuario = () => {
     codigoPostal: '',
     estadoId: 1,
     active: true,
+    dni: '' 
   });
   const [errors, setErrors] = useState({});
 
@@ -90,16 +91,20 @@ const GestionUsuario = () => {
   });
   const handleEdit = user => {
     setEditingUser(user);
+    //  Usar dinámicamente el ID del rol, o el primer rol si no tiene
+    const rolId = user.rol?.id?.toString() || user.rolId?.toString() || (roles.length > 0 ? roles[0].id.toString() : '');
+    
     setFormData({
       nombre: user.nombre,
       email: user.email,
-      rol: user.rol?.id?.toString() || user.rolId?.toString() || '2',
+      rol: rolId,
       direccion: user.direccion || '',
       telefono: user.telefono || '',
       ciudad: user.ciudad || '',
       codigoPostal: user.codigoPostal || '',
       estadoId: user.estadoId || user.estado?.id || 1,
       active: user.active ?? true,
+      dni: user.persona?.numeroDocumento || '' //  Cargar DNI si existe
     });
     setShowModal(true);
   };
@@ -110,13 +115,14 @@ const GestionUsuario = () => {
       nombre: '',
       email: '',
       password: '',
-      rol: '2',
+      rol: roles.length > 0 ? roles[0].id.toString() : '', //  Dinámico: primer rol de la BD
       direccion: '',
       telefono: '',
       ciudad: '',
       codigoPostal: '',
       estadoId: 1,
       active: true,
+      dni: '' 
     });
     setErrors({});
     setShowModal(true);
@@ -149,6 +155,16 @@ const GestionUsuario = () => {
         break;
       case 'codigoPostal':
         fieldError = validateCodigoPostal(value);
+        break;
+      case 'dni':
+        // Validar DNI - OBLIGATORIO y debe tener 8 dígitos
+        if (!value || value.trim().length === 0) {
+          fieldError = ['El DNI es requerido'];
+        } else if (value.trim().length !== 8) {
+          fieldError = ['El DNI debe tener exactamente 8 dígitos'];
+        } else if (!/^\d+$/.test(value.trim())) {
+          fieldError = ['El DNI debe contener solo números'];
+        }
         break;
       default:
         break;
@@ -188,7 +204,12 @@ const GestionUsuario = () => {
         telefono: formData.telefono?.trim() || '',
         ciudad: formData.ciudad?.trim() || '',
         codigoPostal: formData.codigoPostal?.trim() || '',
-        rolId: parseInt(formData.rol)
+        rolId: parseInt(formData.rol),
+        tipoClienteId: 1, //  Por defecto: cliente natural
+        persona: { //  Datos básicos de persona
+          nombre: normalizeName(formData.nombre),
+          numeroDocumento: formData.dni //  DNI OBLIGATORIO
+        }
       };
 
       // Agregar password solo si es un nuevo usuario o si se especificó
@@ -463,6 +484,26 @@ const GestionUsuario = () => {
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>DNI *</label>
+                    <input
+                      type="text"
+                      className={`form-control ${errors.dni ? 'input-error' : ''}`}
+                      value={formData.dni}
+                      onChange={e => handleFieldChange('dni', e.target.value)}
+                      placeholder="Ej: 12345678"
+                      maxLength="8"
+                      required
+                    />
+                    {errors.dni && (
+                      <div className="error-messages">
+                        {errors.dni.map((error, index) => (
+                          <span key={index} className="error-text">{error}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="form-group">
