@@ -197,7 +197,9 @@ const GestionUsuario = () => {
       }
 
       if (editingUser) {
-        await axios.put(`${API_URL}/api/usuarios/update/${editingUser.id}`, dataToSend);
+        await axios.put(`${API_URL}/api/usuarios/update/${editingUser.id}`, dataToSend, {
+          headers: getAuthHeaders()
+        });
         swal.fire({
           icon: 'success',
           title: 'Actualizado',
