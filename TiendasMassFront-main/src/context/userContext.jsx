@@ -96,7 +96,7 @@ export const UsuarioProvider = ({ children }) => {
     }
   };
 
-  const refrescarUsuarioDesdeAPI = async () => {
+  const refrescarUsuarioDesdeAPI = async (userId = null) => {
   try {
     const storedUser =
       localStorage.getItem('usuario') || sessionStorage.getItem('usuario');
@@ -104,7 +104,7 @@ export const UsuarioProvider = ({ children }) => {
       localStorage.getItem('token') || sessionStorage.getItem('token');
 
     if (storedUser && storedToken) {
-      const { id } = JSON.parse(storedUser);
+      const { id } = userId ? { id: userId } : JSON.parse(storedUser);
 
       const res = await fetch(`${API_URL}/api/usuarios/${id}`, {
         headers: {

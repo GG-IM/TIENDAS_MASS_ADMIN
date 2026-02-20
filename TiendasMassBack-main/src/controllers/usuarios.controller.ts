@@ -24,7 +24,7 @@ const estadoRepository = AppDataSource.getRepository(Estado);
 export const getAllUsuarios = async (req: Request, res: Response): Promise<void> => {
   try {
     const usuarios = await usuarioRepository.find({
-      relations: ['estado'], // Incluye el estado en la respuesta
+      relations: ['estado', 'rol'], // Incluye el estado y rol en la respuesta
     });
     res.json(usuarios);
   } catch (error: any) {
@@ -37,7 +37,7 @@ export const getUsuarioById = async (req: Request, res: Response): Promise<void>
     const { id } = req.params;
     const usuario = await usuarioRepository.findOne({
       where: { id: parseInt(id) },
-      relations: ['estado'],
+      relations: ['estado', 'rol'],
     });
 
     if (!usuario) {
@@ -54,6 +54,10 @@ export const getUsuarioById = async (req: Request, res: Response): Promise<void>
       ciudad: usuario.ciudad,
       codigoPostal: usuario.codigoPostal,
       estado: usuario.estado.nombre,
+      rol: usuario.rol ? {
+        id: usuario.rol.id,
+        nombre: usuario.rol.nombre
+      } : null,
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -395,11 +399,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 export const update = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { nombre, direccion, telefono, ciudad, codigoPostal, estadoId } = req.body;
+    const { nombre, direccion, telefono, ciudad, codigoPostal, estadoId, rolId, password } = req.body;
 
     const usuario = await usuarioRepository.findOne({
       where: { id: parseInt(id, 10) },
-      relations: ['estado'],
+      relations: ['estado', 'rol'],
     });
 
     if (!usuario) {
@@ -416,11 +420,24 @@ export const update = async (req: Request, res: Response): Promise<void> => {
       usuario.estado = estado;
     }
 
+    if (rolId !== undefined) {
+      const rol = await AppDataSource.getRepository(Rol).findOneBy({ id: rolId });
+      if (!rol) {
+        res.status(400).json({ message: `Rol con ID ${rolId} no encontrado` });
+        return;
+      }
+      usuario.rol = rol;
+    }
+
     if (nombre !== undefined) usuario.nombre = nombre;
     if (direccion !== undefined) usuario.direccion = direccion;
     if (telefono !== undefined) usuario.telefono = telefono;
     if (ciudad !== undefined) usuario.ciudad = ciudad;
     if (codigoPostal !== undefined) usuario.codigoPostal = codigoPostal;
+    
+    if (password !== undefined && password.trim() !== '') {
+      usuario.password = await bcrypt.hash(password, 10);
+    }
 
     const usuarioActualizado = await usuarioRepository.save(usuario);
 
@@ -434,7 +451,14 @@ export const update = async (req: Request, res: Response): Promise<void> => {
         telefono: usuarioActualizado.telefono,
         ciudad: usuarioActualizado.ciudad,
         codigoPostal: usuarioActualizado.codigoPostal,
-        estado: usuarioActualizado.estado.nombre,
+        estado: usuarioActualizado.estado ? {
+          id: usuarioActualizado.estado.id,
+          nombre: usuarioActualizado.estado.nombre
+        } : null,
+        rol: usuarioActualizado.rol ? {
+          id: usuarioActualizado.rol.id,
+          nombre: usuarioActualizado.rol.nombre
+        } : null,
       }
     });
 

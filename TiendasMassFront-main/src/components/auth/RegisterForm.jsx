@@ -143,6 +143,9 @@ const handleSubmit = async (e) => {
 
         // ✅ nuevo: tipoClienteId (desde BD)
         tipoClienteId: Number(formData.tipoClienteId),
+        
+        // ✅ Asignar rol de cliente por defecto
+        rolId: 2, // 2 = Cliente
 
         // Persona
         persona: {
