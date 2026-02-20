@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useUsuario } from '../../context/userContext';
 import axios from 'axios';
 import { Edit, Trash2, Plus, Search, Eye } from 'lucide-react';
 import swal from 'sweetalert2';
@@ -16,6 +17,7 @@ import {
 } from '../../utils/usuariosvalidaciones';
 
 const GestionUsuario = () => {
+  const { getAuthHeaders } = useUsuario();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -237,7 +239,9 @@ const GestionUsuario = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${API_URL}/api/usuarios/delete/${id}`);
+        await axios.delete(`${API_URL}/api/usuarios/delete/${id}`, {
+          headers: getAuthHeaders()
+        });
         swal.fire({
           icon: 'success',
           title: 'Eliminado',

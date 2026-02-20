@@ -443,6 +443,9 @@ export const update = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+
+import { OTP } from "../entities/OTP.entity";
+
 export const deleteUsuario = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -453,8 +456,21 @@ export const deleteUsuario = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    await usuarioRepository.remove(usuario);
-    res.json({ message: 'Usuario eliminado correctamente' });
+    // Eliminar OTPs relacionados antes de borrar usuario
+    const otpRepo = AppDataSource.getRepository(OTP);
+    await otpRepo.delete({ usuario: { id: usuario.id } });
+
+    try {
+      await usuarioRepository.remove(usuario);
+      res.json({ message: 'Usuario eliminado correctamente' });
+    } catch (error: any) {
+      // Error de foreign key
+      if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.message?.includes('a foreign key constraint fails')) {
+        res.status(409).json({ message: 'No se puede eliminar el usuario porque tiene registros relacionados en otras tablas.' });
+      } else {
+        throw error;
+      }
+    }
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
