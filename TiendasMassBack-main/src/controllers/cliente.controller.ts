@@ -4,6 +4,13 @@ import { Cliente } from "../entities/Cliente.entity";
 
 import { Persona } from "../entities/Persona.entity";
 import { Empresa } from "../entities/Empresa.entity";
+import { Usuario } from "../entities/Usuario.entity";
+
+const normalizeSpaces = (value: string): string => value.replace(/\s+/g, " ").trim();
+
+const buildFullName = (nombres: string, apellidoPaterno?: string, apellidoMaterno?: string): string => {
+  return normalizeSpaces([nombres, apellidoPaterno || "", apellidoMaterno || ""].filter(Boolean).join(" "));
+};
 
 export const updateClienteMe = async (req: Request, res: Response) => {
   try {
@@ -35,6 +42,21 @@ export const updateClienteMe = async (req: Request, res: Response) => {
         telefono: persona.telefono ?? cliente.persona.telefono
       });
       await repoPersona.save(cliente.persona);
+
+      // Sincronizar nombre visible de Usuario para evitar desalineación con Persona.
+      if (cliente.usuario) {
+        const repoUsuario = AppDataSource.getRepository(Usuario);
+        const nombreCompleto = buildFullName(
+          String(cliente.persona.nombres || ""),
+          String(cliente.persona.apellidoPaterno || ""),
+          String(cliente.persona.apellidoMaterno || "")
+        );
+
+        if (nombreCompleto) {
+          cliente.usuario.nombre = nombreCompleto;
+          await repoUsuario.save(cliente.usuario);
+        }
+      }
     }
 
     // ✅ Actualizar Empresa solo si el cliente es JURIDICO

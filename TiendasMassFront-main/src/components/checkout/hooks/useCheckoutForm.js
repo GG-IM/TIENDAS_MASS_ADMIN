@@ -35,6 +35,7 @@ export const useCheckoutForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [pedidoCreado, setPedidoCreado] = useState(null);
+  const [shouldAdvanceStep, setShouldAdvanceStep] = useState(false);
 
   // Mercado Pago
   const [showMpWallet, setShowMpWallet] = useState(false);
@@ -309,7 +310,9 @@ export const useCheckoutForm = () => {
         return;
       }
 
+      // 🆕 Para métodos NO-MP (efectivo, transferencia, etc), avanzar a Step 3
       if (vaciarCarrito) vaciarCarrito();
+      setShouldAdvanceStep(true);
 
     } catch (e) {
       console.error('💥 Error:', e);
@@ -337,6 +340,8 @@ export const useCheckoutForm = () => {
     pedidoCreado,
     showMpWallet,
     mpPrefId,
+    shouldAdvanceStep,
+    setShouldAdvanceStep,
     updateFormData,
     updateCardInfo,
     handleAddressChange,

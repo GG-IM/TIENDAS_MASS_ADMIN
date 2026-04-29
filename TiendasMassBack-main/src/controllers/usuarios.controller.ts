@@ -17,6 +17,12 @@ import jwt from 'jsonwebtoken';
 
 const privateKey = fs.readFileSync(path.join(__dirname, '..', 'keys', 'private.key'), 'utf8');
 
+const normalizeSpaces = (value: string): string => value.replace(/\s+/g, ' ').trim();
+
+const buildFullName = (nombres: string, apellidoPaterno?: string, apellidoMaterno?: string): string => {
+  return normalizeSpaces([nombres, apellidoPaterno || '', apellidoMaterno || ''].filter(Boolean).join(' '));
+};
+
 const usuarioRepository = AppDataSource.getRepository(Usuario);
 const estadoRepository = AppDataSource.getRepository(Estado);
 
@@ -68,7 +74,6 @@ export const getUsuarioById = async (req: Request, res: Response): Promise<void>
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
-      nombre,
       email,
       password,
       direccion,
@@ -83,26 +88,36 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       empresa
     } = req.body;
 
+    const personaNombres = normalizeSpaces(String(persona?.nombres ?? persona?.nombre ?? ''));
+    const personaApellidoPaterno = normalizeSpaces(String(persona?.apellidoPaterno ?? ''));
+    const personaApellidoMaterno = normalizeSpaces(String(persona?.apellidoMaterno ?? ''));
+    const nombreCompleto = buildFullName(personaNombres, personaApellidoPaterno, personaApellidoMaterno);
+
     // Validaciones de entrada
-    if (!nombre || !email || !password) {
-      res.status(400).json({ message: 'Nombre, email y contraseña son requeridos' });
+    if (!email || !password) {
+      res.status(400).json({ message: 'Email y contraseña son requeridos' });
       return;
     }
 
-    // Validación de nombre (2-100 caracteres, solo letras y espacios)
-    if (nombre.trim().length < 2) {
-      res.status(400).json({ message: 'El nombre debe tener al menos 2 caracteres' });
+    if (!persona || !personaNombres) {
+      res.status(400).json({ message: 'Los datos de persona son requeridos y nombres es obligatorio' });
       return;
     }
-    
-    if (nombre.length > 100) {
-      res.status(400).json({ message: 'El nombre no puede exceder 100 caracteres' });
+
+    // Validación del nombre completo derivado desde Persona
+    if (nombreCompleto.length < 2) {
+      res.status(400).json({ message: 'El nombre completo debe tener al menos 2 caracteres' });
       return;
     }
-    
+
+    if (nombreCompleto.length > 255) {
+      res.status(400).json({ message: 'El nombre completo no puede exceder 255 caracteres' });
+      return;
+    }
+
     const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-    if (!nameRegex.test(nombre)) {
-      res.status(400).json({ message: 'El nombre solo puede contener letras y espacios' });
+    if (!nameRegex.test(nombreCompleto)) {
+      res.status(400).json({ message: 'El nombre completo solo puede contener letras y espacios' });
       return;
     }
 
@@ -191,11 +206,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ message: 'tipoClienteId es requerido' });
       return;
     }
-    if (!persona) {
-      res.status(400).json({ message: 'Los datos de persona son requeridos' });
-      return;
-    }
-
     // Hashea la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
   
@@ -238,7 +248,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
       // 1) Crear Usuario (igual que antes)
       const nuevoUsuarioTx = usuarioRepo.create({
-        nombre,
+        nombre: nombreCompleto,
         email: normalizedEmail,
         password: hashedPassword,
         direccion,
@@ -255,9 +265,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       const personaTx = personaRepo.create({
         tipoDocumento: persona.tipoDocumento || 'DNI',
         numeroDocumento: String(persona.numeroDocumento || ''),
-        nombres: persona.nombres || nombre,
-        apellidoPaterno: persona.apellidoPaterno || '',
-        apellidoMaterno: persona.apellidoMaterno || '',
+        nombres: personaNombres,
+        apellidoPaterno: personaApellidoPaterno || '',
+        apellidoMaterno: personaApellidoMaterno || '',
         correo: (persona.correo || normalizedEmail).trim().toLowerCase(),
         telefono: persona.telefono || telefono || ''
       });

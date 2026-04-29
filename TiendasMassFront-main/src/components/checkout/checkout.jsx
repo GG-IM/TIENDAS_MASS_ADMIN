@@ -38,9 +38,13 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
     }
   };
 
-  const hideNotification = () => {
-    setNotification(null);
-  };
+  // 🆕 Observar cambios en shouldAdvanceStep para ir a Step 3 con métodos no-MP
+  React.useEffect(() => {
+    if (checkoutForm.shouldAdvanceStep && activeStep === 2) {
+      setActiveStep(3);
+      checkoutForm.setShouldAdvanceStep(false);
+    }
+  }, [checkoutForm.shouldAdvanceStep, activeStep, setActiveStep, checkoutForm]);
 
   // Calcular totales
   const totals = checkoutForm.calculateTotals(checkoutData.metodosEnvio, checkoutData.metodosPago);

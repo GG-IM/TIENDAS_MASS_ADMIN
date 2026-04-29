@@ -222,6 +222,11 @@ useEffect(() => {
     }
   };
 
+  const fullNameParts = String(userData?.nombre || '').trim().split(/\s+/).filter(Boolean);
+  const nombresFallback = fullNameParts[0] || '';
+  const apellidoPaternoFallback = fullNameParts[1] || '';
+  const apellidoMaternoFallback = fullNameParts.slice(2).join(' ');
+
   return (
     <div className="profile-section">
       <div className="section-header">
@@ -259,6 +264,71 @@ useEffect(() => {
             <div className="form-group">
               <label>Email</label>
               <div className="field-display">{userData.email}</div>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Nombres</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.nombres}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, nombres: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData?.persona?.nombres || nombresFallback || '-'}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Apellido Paterno</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.apellidoPaterno}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, apellidoPaterno: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData?.persona?.apellidoPaterno || apellidoPaternoFallback || '-'}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Apellido Materno</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={clienteForm.persona.apellidoMaterno}
+                  onChange={(e) =>
+                    setClienteForm(prev => ({
+                      ...prev,
+                      persona: { ...prev.persona, apellidoMaterno: e.target.value }
+                    }))
+                  }
+                />
+              ) : (
+                <div className="field-display">{clienteData?.persona?.apellidoMaterno || apellidoMaternoFallback || '-'}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Tipo de cliente</label>
+              <div className="field-display">
+                {clienteLoading ? "Cargando..." : (clienteData?.tipoCliente?.nombre || "Sin perfil de cliente")}
+              </div>
             </div>
           </div>
 
@@ -344,15 +414,6 @@ useEffect(() => {
 
 {/* ===== Datos de Cliente (Natural / Jurídico) ===== */}
 <div className="profile-form" style={{ marginTop: 20 }}>
-  <div className="form-row">
-    <div className="form-group">
-      <label>Tipo de cliente</label>
-      <div className="field-display">
-        {clienteLoading ? "Cargando..." : (clienteData?.tipoCliente?.nombre || "No definido")}
-      </div>
-    </div>
-  </div>
-
   {!clienteLoading && clienteData && (
     <>
       {/* ===================== NATURAL ===================== */}
@@ -374,62 +435,6 @@ useEffect(() => {
                 />
               ) : (
                 <div className="field-display">{clienteData.persona?.numeroDocumento || "-"}</div>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label>Nombres</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={clienteForm.persona.nombres}
-                  onChange={(e) =>
-                    setClienteForm(prev => ({
-                      ...prev,
-                      persona: { ...prev.persona, nombres: e.target.value }
-                    }))
-                  }
-                />
-              ) : (
-                <div className="field-display">{clienteData.persona?.nombres || "-"}</div>
-              )}
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Apellido Paterno</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={clienteForm.persona.apellidoPaterno}
-                  onChange={(e) =>
-                    setClienteForm(prev => ({
-                      ...prev,
-                      persona: { ...prev.persona, apellidoPaterno: e.target.value }
-                    }))
-                  }
-                />
-              ) : (
-                <div className="field-display">{clienteData.persona?.apellidoPaterno || "-"}</div>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label>Apellido Materno</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={clienteForm.persona.apellidoMaterno}
-                  onChange={(e) =>
-                    setClienteForm(prev => ({
-                      ...prev,
-                      persona: { ...prev.persona, apellidoMaterno: e.target.value }
-                    }))
-                  }
-                />
-              ) : (
-                <div className="field-display">{clienteData.persona?.apellidoMaterno || "-"}</div>
               )}
             </div>
           </div>
@@ -573,26 +578,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* (Opcional) también puedes permitir editar el "contacto" Persona aunque sea jurídico */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>Nombre del contacto</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={clienteForm.persona.nombres}
-                  onChange={(e) =>
-                    setClienteForm(prev => ({
-                      ...prev,
-                      persona: { ...prev.persona, nombres: e.target.value }
-                    }))
-                  }
-                />
-              ) : (
-                <div className="field-display">{clienteData.persona?.nombres || "-"}</div>
-              )}
-            </div>
-          </div>
         </>
       )}
     </>

@@ -516,7 +516,7 @@ const ProductManager = () => {
                       <span className="text-muted">-</span>
                     )}
                   </td>
-                  <td><strong>${Number(product.precio).toFixed(2)}</strong></td>
+                  <td><strong>S/.{Number(product.precio).toFixed(2)}</strong></td>
                   <td>
                     <span className={`badge ${product.stock > 20 ? 'badge-success' : product.stock > 5 ? 'badge-warning' : 'badge-danger'}`}>
                       {product.stock}

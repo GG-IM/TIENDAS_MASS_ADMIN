@@ -105,6 +105,41 @@ const Step2Payment = ({
           return <div className="mp-loading"><p>Preparando pago seguro con Mercado Pago...</p></div>;
         }
 
+        // 🆕 Para métodos de pago manual (Efectivo, Transferencia, etc)
+        const isManualPayment = selectedMethodObj && 
+          ['efectivo', 'transferencia', 'deposito', 'billetera'].includes((selectedMethodObj.tipo || '').toLowerCase());
+        
+        if (isManualPayment) {
+          return (
+            <div className="payment-instructions" style={{ marginTop: 16, padding: '12px', backgroundColor: '#fff3cd', borderRadius: '8px', borderLeft: '4px solid #ff9800' }}>
+              <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '500', color: '#856404' }}>
+                ℹ️ <strong>Instrucciones de {selectedMethodObj.nombre}:</strong>
+              </p>
+              <div style={{ color: '#856404', fontSize: '13px', lineHeight: '1.6' }}>
+                {selectedMethodObj.tipo === 'efectivo' && (
+                  <p>
+                    Tu pedido será confirmado cuando complete el pago en efectivo al momento de la entrega.
+                    El conductor aceptará el dinero exacto o cambio según corresponda.
+                  </p>
+                )}
+                {selectedMethodObj.tipo === 'transferencia' && (
+                  <p>
+                    Necesitarás transferir el monto exacto a nuestra cuenta bancaria. 
+                    Después de confirmar tu pedido, recibirás los detalles bancarios por correo electrónico.
+                  </p>
+                )}
+                {selectedMethodObj.tipo === 'billetera' && (
+                  <p>
+                    Usarás tu billetera digital (Yape, Plin, etc.) para completar el pago.
+                    Seguirás el flujo seguro de la app correspondiente.
+                  </p>
+                )}
+                {selectedMethodObj.descripcion && <p><em>{selectedMethodObj.descripcion}</em></p>}
+              </div>
+            </div>
+          );
+        }
+
         const isCardMethod = selectedMethodObj?.tipo === 'tarjeta' || selectedMethodObj?.nombre?.toLowerCase().includes('tarjeta');
         if (isCardMethod) {
           return (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { XCircle, ChevronLeft } from "lucide-react";
+import { XCircle, ChevronLeft, AlertTriangle, Home } from "lucide-react";
 import { useCarrito } from "../context/carContext";
 import "./CheckoutFailure.css";
 
@@ -16,42 +16,63 @@ const CheckoutFailure = () => {
     setErrorReason(reason);
   }, [location.search]);
 
-  const handleRetry = () => navigate("/carrito");
+  const handleRetry = () => navigate("/checkout");
   const handleGoHome = () => navigate("/");
 
   return (
-    <div className="checkout-failure-container">
-      <div className="failure-card">
-        <XCircle className="failure-icon" />
+    <div className="checkout-status-container failure">
+      {/* Background decoration */}
+      <div className="bg-decoration"></div>
 
-        <h1 className="failure-title">Pago No Completado</h1>
+      <div className="status-card error">
+        {/* Icon */}
+        <div className="icon-wrapper">
+          <XCircle className="status-icon error" />
+        </div>
 
-        <p className="failure-message">{errorReason}</p>
+        {/* Title */}
+        <h1 className="status-title">Pago No Completado</h1>
 
-        <div className="failure-tips">
-          <h3>¿Qué puedes hacer?</h3>
-          <ul>
-            <li>✓ Verifica los datos de tu tarjeta</li>
-            <li>✓ Asegúrate de tener saldo disponible</li>
-            <li>✓ Intenta con otro método de pago</li>
-            <li>✓ Contacta con tu banco si el problema persiste</li>
+        {/* Message */}
+        <p className="status-message">{errorReason}</p>
+
+        {/* Error Info Box */}
+        <div className="info-box error-info">
+          <AlertTriangle size={20} />
+          <div>
+            <p><strong>¿Qué sucedió?</strong></p>
+            <p>Tu banco rechazó la transacción o fue cancelada. Esto puede ocurrir por fondos insuficientes, datos incorrectos o limitaciones de la tarjeta.</p>
+          </div>
+        </div>
+
+        {/* Tips */}
+        <div className="tips-box">
+          <h3>Recomendaciones para intentar de nuevo:</h3>
+          <ul className="tips-list">
+            <li><span className="tip-icon">✓</span> Verifica los datos de tu tarjeta</li>
+            <li><span className="tip-icon">✓</span> Asegúrate de tener saldo disponible</li>
+            <li><span className="tip-icon">✓</span> Intenta con otro método de pago</li>
+            <li><span className="tip-icon">✓</span> Contacta a tu banco si el problema persiste</li>
+            <li><span className="tip-icon">✓</span> Prueba con otro navegador si es necesario</li>
           </ul>
         </div>
 
+        {/* Action Buttons */}
         <div className="action-buttons">
           <button className="btn btn-primary" onClick={handleRetry}>
-            <ChevronLeft size={20} />
-            Volver al Carrito
+            <ChevronLeft size={18} />
+            Reintentar Pago
           </button>
-
           <button className="btn btn-secondary" onClick={handleGoHome}>
-            Ir a la Tienda
+            <Home size={18} />
+            Volver a la Tienda
           </button>
         </div>
 
-        <p className="help-text">
-          ¿Necesitas ayuda? Contáctanos en nuestro sitio o envía un correo a soporte@tiendasmass.com
-        </p>
+        {/* Footer message */}
+        <div className="status-footer">
+          <p>¿Necesitas soporte? Escríbenos a <strong>soporte@tiendasmass.com</strong> y te ayudaremos</p>
+        </div>
       </div>
     </div>
   );

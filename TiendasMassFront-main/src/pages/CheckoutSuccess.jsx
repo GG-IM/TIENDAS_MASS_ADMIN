@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle, Clock, AlertCircle, ShoppingBag, Mail } from "lucide-react";
 import { useCarrito } from "../context/carContext";
 import "./CheckoutSuccess.css";
 
@@ -8,9 +8,9 @@ const CheckoutSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { vaciarCarrito } = useCarrito();
-  const [status, setStatus] = useState("Verificando pago...");
+  const [status, setStatus] = useState("Verificando tu pago...");
   const [orderId, setOrderId] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState("loading"); // loading, success, pending, error
+  const [paymentStatus, setPaymentStatus] = useState("loading");
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
@@ -18,43 +18,36 @@ const CheckoutSuccess = () => {
     const paymentId = query.get("payment_id");
 
     if (!paymentId) {
-      setStatus("No se encontró payment_id en la URL.");
+      setStatus("No encontramos el ID de pago en la URL.");
       setPaymentStatus("error");
       return;
     }
 
     const confirmarPago = async () => {
       try {
-        const resp = await fetch(
-          `http://localhost:5001/api/payments/mp/confirm`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              preferenceId: paymentId // Enviar como preferenceId
-            }),
-          }
-        );
+        const resp = await fetch(`http://localhost:5001/api/payments/mp/confirm`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ preferenceId: paymentId }),
+        });
 
         const data = await resp.json();
+
         if (resp.ok) {
           if (data.statusMp === "approved") {
-            setStatus("¡Pago aprobado exitosamente!");
+            setStatus("¡Tu pedido está confirmado y en camino!");
             setPaymentStatus("success");
-            // 🔥 Limpiar carrito después de pago exitoso
-            if (vaciarCarrito) {
-              vaciarCarrito();
-            }
+            if (vaciarCarrito) vaciarCarrito();
           } else if (data.statusMp === "pending") {
-            setStatus("Pago pendiente de verificación");
+            setStatus("Estamos verificando tu pago. Te avisamos pronto.");
             setPaymentStatus("pending");
           } else {
-            setStatus(`Pago: ${data.statusMp}`);
+            setStatus(`Estado del pago: ${data.statusMp}`);
             setPaymentStatus("pending");
           }
           setOrderId(data.orderId);
         } else {
-          setStatus("Error al confirmar el pago. Intenta más tarde.");
+          setStatus("No pudimos confirmar el pago. Intenta más tarde.");
           setPaymentStatus("error");
         }
       } catch (err) {
@@ -67,10 +60,10 @@ const CheckoutSuccess = () => {
     confirmarPago();
   }, [location.search]);
 
-  // Auto-redirect después de 5 segundos
+  // Auto-redirect después de 5 segundos si el pago fue aprobado
   useEffect(() => {
     if (paymentStatus === "success" && countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
       return () => clearTimeout(timer);
     }
     if (countdown === 0 && paymentStatus === "success") {
@@ -82,62 +75,140 @@ const CheckoutSuccess = () => {
 
   const renderIcon = () => {
     if (paymentStatus === "success") {
-      return <CheckCircle className="icon success-icon" />;
+      return (
+        <div className="icon-circle success">
+          <CheckCircle className="status-icon success" />
+        </div>
+      );
     } else if (paymentStatus === "pending") {
-      return <Clock className="icon pending-icon" />;
+      return (
+        <div className="icon-circle pending">
+          <Clock className="status-icon pending" />
+        </div>
+      );
     } else {
-      return <AlertCircle className="icon error-icon" />;
+      return (
+        <div className="icon-circle error">
+          <AlertCircle className="status-icon error" />
+        </div>
+      );
     }
   };
 
+  const badgeLabel = {
+    success: "Pago aprobado",
+    pending: "Pago pendiente",
+    error: "Error en el pago",
+    loading: "Verificando...",
+  };
+
+  const titleText = {
+    success: "¡Lleva Mass, pagaste Menos!",
+    pending: "Pago en verificación",
+    error: "Algo salió mal",
+    loading: "Confirmando tu compra...",
+  };
+
   return (
-    <div className="checkout-success-container">
-      <div className="success-card">
-        {renderIcon()}
+    <div className="checkout-status-container">
 
-        <h1 className="success-title">
-          {paymentStatus === "success"
-            ? "¡Compra Completada!"
-            : paymentStatus === "pending"
-            ? "Pago Pendiente"
-            : "Error en la Transacción"}
-        </h1>
+      {/* Logo Mass */}
+      <div className="mass-header">
+        <span className="mass-logo-badge">Mass</span>
+        <span className="mass-tagline">Lleva Mass · Paga Menos</span>
+      </div>
 
-        <p className="success-message">{status}</p>
+      {/* Tarjeta principal */}
+      <div className="status-card">
 
+        {/* Ícono */}
+        <div className="icon-wrapper">
+          {renderIcon()}
+        </div>
+
+        {/* Badge de estado */}
+        {paymentStatus !== "loading" && (
+          <div className={`status-badge ${paymentStatus}`}>
+            {badgeLabel[paymentStatus]}
+          </div>
+        )}
+
+        {/* Título */}
+        <h1 className="status-title">{titleText[paymentStatus]}</h1>
+
+        {/* Mensaje */}
+        <p className="status-message">{status}</p>
+
+        {/* ID de pedido */}
         {orderId && (
-          <div className="order-info">
-            <p className="order-label">ID de Pedido:</p>
-            <p className="order-id">{orderId}</p>
+          <div className="order-number">
+            <p className="order-label">Número de pedido</p>
+            <p className="order-id">#{orderId}</p>
           </div>
         )}
 
+        {/* Info según estado */}
         {paymentStatus === "success" && (
-          <div className="redirect-info">
-            <p className="countdown-text">
-              Redirigiendo en <span className="countdown">{countdown}</span> segundos...
-            </p>
+          <div className="info-box success-info">
+            <Mail size={20} />
+            <div>
+              <strong>¡Gracias por tu compra, caser@!</strong>
+              Recibirás un correo con los detalles de tu pedido. Recuerda que estamos siempre cerca de tu hogar.
+            </div>
           </div>
         )}
 
+        {paymentStatus === "pending" && (
+          <div className="info-box pending-info">
+            <Clock size={20} />
+            <div>
+              <strong>Estamos en ello</strong>
+              Tu pago está siendo procesado. Te enviaremos un correo en cuanto se confirme.
+            </div>
+          </div>
+        )}
+
+        {paymentStatus === "error" && (
+          <div className="info-box error-info">
+            <AlertCircle size={20} />
+            <div>
+              <strong>No te preocupes</strong>
+              No se realizó ningún cobro. Si el problema persiste, contáctanos o intenta nuevamente.
+            </div>
+          </div>
+        )}
+
+        {/* Countdown de redireccion */}
+        {paymentStatus === "success" && countdown > 0 && (
+          <div className="countdown-box">
+            Te llevamos a la tienda en{" "}
+            <span className="countdown-number">{countdown}</span>{" "}
+            {countdown === 1 ? "segundo" : "segundos"}...
+          </div>
+        )}
+
+        {/* Botón principal */}
         <div className="action-buttons">
           <button className="btn btn-primary" onClick={handleGoHome}>
-            {paymentStatus === "success" ? "Ir a la tienda" : "Volver a la tienda"}
+            <ShoppingBag size={18} />
+            {paymentStatus === "success" ? "Seguir comprando" : "Volver a la tienda"}
           </button>
+        </div>
 
-          {paymentStatus === "pending" && (
-            <p className="info-text">
-              Tu pago está siendo verificado. Te enviaremos un correo cuando sea confirmado.
-            </p>
-          )}
-
-          {paymentStatus === "error" && (
-            <p className="error-text">
-              Si el problema persiste, contáctanos o intenta nuevamente.
-            </p>
-          )}
+        {/* Footer */}
+        <div className="status-footer">
+          <p>
+            ¿Tienes dudas? Escríbenos a{" "}
+            <strong>servicioalcliente@tiendasmass.pe</strong>
+            <br />
+            Atención de lunes a domingo · 7 AM a 10 PM
+          </p>
         </div>
       </div>
+
+      {/* Pie de página */}
+      <p className="mass-footer">© 2026 Tiendas Mass · Compañía Hard Discount S.A.C.</p>
+
     </div>
   );
 };

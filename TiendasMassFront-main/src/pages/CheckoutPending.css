@@ -1,28 +1,55 @@
-.checkout-pending-container {
+:root {
+  --primary: #F7B500;
+  --success: #10b981;
+  --pending: #f59e0b;
+  --error: #ef4444;
+  --border: #e5e7eb;
+  --text-dark: #1f2937;
+  --text-muted: #6b7280;
+  --bg-light: #f9fafb;
+}
+
+.checkout-status-container.pending {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
-  padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+  overflow: hidden;
 }
 
-.pending-card {
+.bg-decoration {
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 0;
+}
+
+.status-card.pending {
   background: white;
   border-radius: 20px;
   padding: 3rem 2rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  max-width: 550px;
   width: 100%;
   text-align: center;
   animation: slideUp 0.6s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -30,78 +57,173 @@
   }
 }
 
-.pending-icon {
-  width: 80px;
-  height: 80px;
-  color: #f59e0b;
-  margin: 0 auto 1.5rem;
-  stroke-width: 1.5px;
+/* Icon Wrapper */
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.status-icon.pending {
+  width: 100px;
+  height: 100px;
+  color: var(--pending);
+  stroke-width: 1.5;
   animation: spin 2s linear infinite;
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.pending-title {
+/* Title */
+.status-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-dark);
   margin: 1rem 0;
   letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
-.pending-message {
-  font-size: 1.1rem;
-  color: #6b7280;
-  margin: 1rem 0 2rem;
+/* Message */
+.status-message {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  margin: 1rem 0 1.5rem;
   line-height: 1.6;
 }
 
-.pending-info {
-  background: #fffbeb;
-  border-left: 4px solid #f59e0b;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin: 2rem 0;
-  text-align: left;
-}
-
-.pending-info h3 {
+/* Info Box */
+.info-box.pending-info {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  background: rgba(245, 158, 11, 0.1);
   color: #92400e;
-  font-size: 1rem;
-  margin: 0 0 1rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.pending-info ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.pending-info li {
-  color: #b45309;
-  margin: 0.75rem 0;
+  border-left: 4px solid var(--pending);
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.action-buttons {
-  margin-top: 2rem;
+.info-box.pending-info svg {
+  flex-shrink: 0;
+  color: var(--pending);
+  margin-top: 0.25rem;
+}
+
+.info-box p {
+  margin: 0;
+}
+
+.info-box strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-dark);
+}
+
+/* Timeline */
+.timeline {
+  text-align: left;
+  margin: 2rem 0;
+}
+
+.timeline h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timeline-steps {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
+.timeline-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background: var(--bg-light);
+  border-radius: 12px;
+  border-left: 4px solid var(--pending);
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  background: var(--pending);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.timeline-step > div:last-child {
+  flex: 1;
+}
+
+.timeline-step strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.timeline-step p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* Countdown Box */
+.countdown-box.pending {
+  background: rgba(245, 158, 11, 0.1);
+  padding: 1rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border: 1px solid var(--pending);
+}
+
+.countdown-box p {
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.countdown-number {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--pending);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem;
+}
+
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   padding: 1rem 2rem;
   border: none;
   border-radius: 10px;
@@ -114,63 +236,74 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+  background: var(--pending);
   color: white;
-  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
 }
 
 .btn-primary:hover {
+  background: #d97706;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
 
 .btn-primary:active {
   transform: translateY(0);
 }
 
-.help-section {
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-top: 2rem;
+/* Help Box */
+.help-box {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
-  color: #6b7280;
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: #fffbeb;
+  border-left: 4px solid var(--pending);
+  color: #92400e;
   font-size: 0.95rem;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
-.help-section svg {
-  color: #f59e0b;
+.help-box svg {
   flex-shrink: 0;
-  margin-top: 2px;
+  color: var(--pending);
+  margin-top: 0.25rem;
 }
 
-.help-section strong {
-  color: #1f2937;
+.help-box p {
+  margin: 0;
+}
+
+.help-box strong {
+  color: var(--text-dark);
+  font-weight: 600;
 }
 
 /* Responsive */
 @media (max-width: 640px) {
-  .checkout-pending-container {
+  .checkout-status-container.pending {
     padding: 1rem;
   }
 
-  .pending-card {
+  .status-card.pending {
     padding: 2rem 1.5rem;
   }
 
-  .pending-title {
+  .status-title {
     font-size: 1.5rem;
   }
 
-  .pending-icon {
-    width: 60px;
-    height: 60px;
+  .status-icon.pending {
+    width: 80px;
+    height: 80px;
   }
 
-  .pending-message {
-    font-size: 1rem;
+  .timeline-steps {
+    gap: 0.75rem;
+  }
+
+  .timeline-step {
+    padding: 0.75rem;
   }
 }

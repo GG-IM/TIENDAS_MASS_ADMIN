@@ -1,218 +1,399 @@
-.checkout-success-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap');
+
+:root {
+  --mass-yellow: #F7B500;
+  --mass-yellow-dark: #d99a00;
+  --mass-yellow-light: #fff8e1;
+  --mass-red: #e02020;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --pending: #d97706;
+  --pending-light: #fef3c7;
+  --error: #dc2626;
+  --error-light: #fee2e2;
+  --text-dark: #1a1a1a;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --white: #ffffff;
 }
 
-.success-card {
-  background: white;
-  border-radius: 20px;
-  padding: 3rem 2rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── FONDO ── */
+.checkout-status-container {
+  min-height: 100vh;
+  background: var(--mass-yellow);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.18) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(0,0,0,0.07) 0%, transparent 50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'Nunito Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Patrón de fondo decorativo */
+.checkout-status-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255,255,255,0.04) 0px,
+    rgba(255,255,255,0.04) 2px,
+    transparent 2px,
+    transparent 24px
+  );
+  pointer-events: none;
+}
+
+/* ── HEADER LOGO ── */
+.mass-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+  animation: fadeDown 0.5s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+.mass-logo-badge {
+  background: var(--text-dark);
+  color: var(--mass-yellow);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  padding: 6px 16px;
+  border-radius: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.mass-tagline {
+  color: rgba(0,0,0,0.55);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ── TARJETA PRINCIPAL ── */
+.status-card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  max-width: 520px;
   width: 100%;
   text-align: center;
-  animation: slideUp 0.6s ease-out;
+  position: relative;
+  z-index: 1;
+  animation: cardIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  box-shadow:
+    0 2px 0 0 var(--mass-yellow-dark),
+    0 8px 0 0 rgba(0,0,0,0.10),
+    0 20px 60px rgba(0,0,0,0.18);
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Franja amarilla superior */
+.status-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 8px;
+  background: var(--mass-yellow);
+  border-radius: 24px 24px 0 0;
 }
 
-.icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 1.5rem;
-  animation: bounceIn 0.6s ease-out;
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(48px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@keyframes bounceIn {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  70% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.success-icon {
-  color: #10b981;
-  stroke-width: 1.5px;
+/* ── ICONO DE ESTADO ── */
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0 1.5rem;
 }
 
-.pending-icon {
-  color: #f59e0b;
-  stroke-width: 1.5px;
-  animation: spin 2s linear infinite;
+.icon-circle {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-circle.success {
+  background: var(--success-light);
+  animation: popIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both 0.2s;
+}
+
+.icon-circle.pending {
+  background: var(--pending-light);
+  animation: popIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both 0.2s;
+}
+
+.icon-circle.error {
+  background: var(--error-light);
+  animation: popIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both 0.2s;
+}
+
+.status-icon {
+  width: 52px;
+  height: 52px;
+  stroke-width: 2;
+}
+
+.status-icon.success { color: var(--success); }
+.status-icon.pending {
+  color: var(--pending);
+  animation: spin 2.4s linear infinite;
+}
+.status-icon.error { color: var(--error); }
+
+@keyframes popIn {
+  0%   { transform: scale(0.4); opacity: 0; }
+  70%  { transform: scale(1.12); }
+  100% { transform: scale(1);   opacity: 1; }
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-.error-icon {
-  color: #ef4444;
-  stroke-width: 1.5px;
-}
-
-.success-title {
-  font-size: 2rem;
+/* ── BADGE DE ESTADO ── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #1f2937;
-  margin: 1rem 0;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.status-badge.success { background: var(--success-light); color: var(--success); }
+.status-badge.pending { background: var(--pending-light); color: var(--pending); }
+.status-badge.error   { background: var(--error-light);   color: var(--error); }
+
+.status-badge::before {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── TÍTULO ── */
+.status-title {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--text-dark);
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
   letter-spacing: -0.5px;
 }
 
-.success-message {
-  font-size: 1.1rem;
-  color: #6b7280;
-  margin: 1rem 0 2rem;
+/* ── MENSAJE ── */
+.status-message {
+  font-size: 1rem;
+  color: var(--text-muted);
   line-height: 1.6;
+  margin-bottom: 1.25rem;
 }
 
-.order-info {
-  background: #f9fafb;
-  border-left: 4px solid #667eea;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin: 2rem 0;
-  text-align: left;
+/* ── NÚMERO DE PEDIDO ── */
+.order-number {
+  background: var(--mass-yellow-light);
+  border: 2px dashed var(--mass-yellow);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0;
 }
 
 .order-label {
-  font-size: 0.875rem;
-  color: #9ca3af;
+  font-size: 0.72rem;
+  color: var(--text-muted);
   text-transform: uppercase;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
 }
 
 .order-id {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #667eea;
-  font-family: 'Courier New', monospace;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--mass-yellow-dark);
+  letter-spacing: 1px;
   word-break: break-all;
 }
 
-.redirect-info {
-  background: #ecfdf5;
-  border: 1px solid #d1fae5;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1.5rem 0;
+/* ── CAJA INFO ── */
+.info-box {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  text-align: left;
 }
 
-.countdown-text {
-  color: #10b981;
-  font-weight: 600;
-  font-size: 0.95rem;
+.info-box svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
 }
 
-.countdown {
-  font-size: 1.3rem;
+.info-box strong {
+  display: block;
   font-weight: 700;
-  color: #059669;
-  font-variant-numeric: tabular-nums;
+  margin-bottom: 2px;
+  font-size: 0.92rem;
 }
 
+.success-info { background: var(--success-light); color: #14532d; }
+.success-info svg { color: var(--success); }
+
+.pending-info { background: var(--pending-light); color: #78350f; }
+.pending-info svg { color: var(--pending); }
+
+.error-info { background: var(--error-light); color: #7f1d1d; }
+.error-info svg { color: var(--error); }
+
+/* ── COUNTDOWN ── */
+.countdown-box {
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1.25rem;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.countdown-number {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: var(--mass-yellow-dark);
+  font-variant-numeric: tabular-nums;
+  display: inline-block;
+  min-width: 1.6ch;
+}
+
+/* ── BOTONES ── */
 .action-buttons {
-  margin-top: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 12px;
+  margin: 1.5rem 0 1rem;
 }
 
 .btn {
-  padding: 1rem 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  letter-spacing: 0.3px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  background: var(--mass-yellow);
+  color: var(--text-dark);
+  box-shadow: 0 4px 0 var(--mass-yellow-dark);
 }
 
 .btn-primary:hover {
+  background: #ffca00;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 6px 0 var(--mass-yellow-dark);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--mass-yellow-dark);
 }
 
-.info-text {
-  color: #f59e0b;
-  font-size: 0.95rem;
-  font-style: italic;
-  margin-top: 1rem;
+/* ── FOOTER ── */
+.status-footer {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.83rem;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
-.error-text {
-  color: #ef4444;
-  font-size: 0.95rem;
-  margin-top: 1rem;
-  line-height: 1.6;
+.status-footer strong {
+  color: var(--text-dark);
+  font-weight: 700;
 }
 
-/* Responsive */
-@media (max-width: 640px) {
-  .checkout-success-container {
-    padding: 1rem;
-  }
+/* ── FOOTER PÁGINA ── */
+.mass-footer {
+  margin-top: 1.5rem;
+  color: rgba(0,0,0,0.45);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
 
-  .success-card {
-    padding: 2rem 1.5rem;
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  .status-card {
+    padding: 2rem 1.25rem;
+    border-radius: 20px;
   }
-
-  .success-title {
-    font-size: 1.5rem;
+  .status-title {
+    font-size: 1.6rem;
   }
-
-  .icon {
-    width: 60px;
-    height: 60px;
+  .icon-circle {
+    width: 80px;
+    height: 80px;
   }
-
-  .success-message {
-    font-size: 1rem;
+  .status-icon {
+    width: 44px;
+    height: 44px;
   }
-
   .order-id {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
 }

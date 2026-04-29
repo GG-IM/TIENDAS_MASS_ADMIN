@@ -245,7 +245,8 @@ const Navbar = ({ abrirModal }) => {
   const { carrito } = useCarrito();
 
   const isLoggedIn = Boolean(usuario);
-  const nombreUsuario = usuario?.nombre || 'Usuario';
+  const nombreCompleto = String(usuario?.nombre || 'Usuario').trim();
+  const nombreUsuario = nombreCompleto.split(/\s+/)[0] || 'Usuario';
   const totalItems = carrito.reduce((acc, producto) => acc + producto.cantidad, 0);
 
   // Verificar si tiene acceso al panel admin consultando permisos

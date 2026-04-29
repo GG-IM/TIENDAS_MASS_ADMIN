@@ -331,6 +331,30 @@
   color: #64748b;
   font-size: 0.875rem;
 }
+
+/* Botón 'ver más' dentro de orders */
+.ver-mas-btn {
+  background: #3b82f6; /* azul */
+  color: #ffffff; /* letras blancas */
+  border: none;
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  box-shadow: 0 6px 18px rgba(59,130,246,0.12);
+}
+
+.ver-mas-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(59,130,246,0.16);
+  background: #2563eb;
+}
+
+.ver-mas-btn:active {
+  transform: translateY(0);
+}
 .order-status-section {
   display: flex;
   flex-direction: column;

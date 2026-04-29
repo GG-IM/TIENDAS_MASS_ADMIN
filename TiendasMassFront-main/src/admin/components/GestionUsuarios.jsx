@@ -207,7 +207,7 @@ const GestionUsuario = () => {
         rolId: parseInt(formData.rol),
         tipoClienteId: 1, //  Por defecto: cliente natural
         persona: { //  Datos básicos de persona
-          nombre: normalizeName(formData.nombre),
+          nombres: normalizeName(formData.nombre),
           numeroDocumento: formData.dni //  DNI OBLIGATORIO
         }
       };

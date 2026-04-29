@@ -1,59 +1,106 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, AlertCircle } from "lucide-react";
+import { Clock, Mail, Home, Info } from "lucide-react";
 import { useCarrito } from "../context/carContext";
 import "./CheckoutPending.css";
 
 const CheckoutPending = () => {
   const navigate = useNavigate();
   const { vaciarCarrito } = useCarrito();
+  const [countdown, setCountdown] = useState(8);
 
   useEffect(() => {
-    // 🔥 Limpiar carrito cuando se llega a página pending
     if (vaciarCarrito) {
       vaciarCarrito();
     }
 
-    // Auto-redirect después de 8 segundos
-    const timer = setTimeout(() => navigate("/"), 8000);
-    return () => clearTimeout(timer);
-  }, [navigate, vaciarCarrito]);
+    // Countdown for auto-redirect
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      navigate("/");
+    }
+  }, [navigate, vaciarCarrito, countdown]);
 
   const handleGoHome = () => navigate("/");
 
   return (
-    <div className="checkout-pending-container">
-      <div className="pending-card">
-        <Clock className="pending-icon" />
+    <div className="checkout-status-container pending">
+      {/* Background decoration */}
+      <div className="bg-decoration"></div>
 
-        <h1 className="pending-title">Pago Pendiente</h1>
-
-        <p className="pending-message">
-          Tu pago está siendo procesado y verificado. Este proceso puede tomar algunos minutos.
-        </p>
-
-        <div className="pending-info">
-          <h3>¿Qué pasa ahora?</h3>
-          <ul>
-            <li>✓ MercadoPago está verificando tu transacción</li>
-            <li>✓ Recibirás un correo de confirmación pronto</li>
-            <li>✓ Tu pedido será procesado una vez confirmado el pago</li>
-            <li>✓ Si hay problemas, te contactaremos directamente</li>
-          </ul>
+      <div className="status-card pending">
+        {/* Icon */}
+        <div className="icon-wrapper">
+          <Clock className="status-icon pending" />
         </div>
 
+        {/* Title */}
+        <h1 className="status-title">Pago en Verificación</h1>
+
+        {/* Message */}
+        <p className="status-message">
+          Tu transacción está siendo procesada por Mercado Pago. Este proceso puede tomar algunos minutos.
+        </p>
+
+        {/* Info Box */}
+        <div className="info-box pending-info">
+          <Mail size={20} />
+          <div>
+            <p><strong>Permanece atento a tu correo</strong></p>
+            <p>Recibirás una confirmación cuando el pago sea verificado completamente</p>
+          </div>
+        </div>
+
+        {/* Timeline Steps */}
+        <div className="timeline">
+          <h3>¿Qué sucede a continuación?</h3>
+          <div className="timeline-steps">
+            <div className="timeline-step">
+              <div className="step-number">1</div>
+              <div>
+                <strong>Verificación</strong>
+                <p>MercadoPago valida tu transacción (segundos a minutos)</p>
+              </div>
+            </div>
+            <div className="timeline-step">
+              <div className="step-number">2</div>
+              <div>
+                <strong>Confirmación</strong>
+                <p>Recibirás un correo confirmando el estado del pago</p>
+              </div>
+            </div>
+            <div className="timeline-step">
+              <div className="step-number">3</div>
+              <div>
+                <strong>Tu Pedido</strong>
+                <p>Iniciaremos la preparación tan pronto se confirme el pago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Countdown */}
+        <div className="countdown-box pending">
+          <p>Volviendo a la tienda en <span className="countdown-number">{countdown}</span>s</p>
+        </div>
+
+        {/* Action Button */}
         <div className="action-buttons">
           <button className="btn btn-primary" onClick={handleGoHome}>
-            Ir a la Tienda
+            <Home size={18} />
+            Ir a la Tienda Ahora
           </button>
         </div>
 
-        <div className="help-section">
-          <AlertCircle size={20} />
-          <p>
-            Si tienes problemas o no recibes confirmación en 24 horas, contáctanos a
-            <strong> soporte@tiendasmass.com</strong>
-          </p>
+        {/* Help Section */}
+        <div className="help-box">
+          <Info size={18} />
+          <div>
+            <p><strong>¿No recibes confirmación?</strong></p>
+            <p>Si en 24 horas no recibes la confirmación, contáctanos a <strong>soporte@tiendasmass.com</strong></p>
+          </div>
         </div>
       </div>
     </div>

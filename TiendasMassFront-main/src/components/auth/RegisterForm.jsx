@@ -10,7 +10,6 @@ function RegisterForm({ switchToLogin }) {
   const [loadingTipos, setLoadingTipos] = useState(true);
 
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -136,7 +135,6 @@ const handleSubmit = async (e) => {
     try {
       const payload = {
         // lo actual (usuario)
-        nombre: formData.name,
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
         direccion: formData.address || "",
@@ -151,7 +149,7 @@ const handleSubmit = async (e) => {
         persona: {
           tipoDocumento: "DNI",
           numeroDocumento: esNatural ? formData.dni : formData.dni || "", // si en jurídico quieres DNI del representante
-          nombres: formData.nombres || formData.name,
+          nombres: formData.nombres,
           apellidoPaterno: formData.apellidoPaterno || "",
           apellidoMaterno: formData.apellidoMaterno || "",
           correo: formData.email.trim().toLowerCase(),
@@ -205,26 +203,6 @@ const handleSubmit = async (e) => {
       <h2 className="form-title">Crear Cuenta</h2>
 
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="register-name">Nombre completo</label>
-          <input
-            id="register-name"
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            placeholder="Ingresa tu nombre"
-            className={errors.name ? 'input-error' : ''}
-          />
-          {errors.name && (
-            <div className="error-messages">
-              {errors.name.map((error, index) => (
-                <span key={index} className="error-text">{error}</span>
-              ))}
-            </div>
-          )}
-        </div>
-
         <div className="form-group">
           <label htmlFor="register-email">Correo electrónico</label>
           <input

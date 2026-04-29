@@ -171,10 +171,13 @@ export const validators = {
 // Función auxiliar para validar todos los campos del formulario de registro
 export const validateRegisterForm = (formData) => {
   const allErrors = {};
-  
-  const nameErrors = validators.name(formData.name);
-  if (nameErrors.length > 0) {
-    allErrors.name = nameErrors;
+
+  // Mantener compatibilidad: validar `name` solo si viene informado.
+  if (formData.name && formData.name.trim() !== '') {
+    const nameErrors = validators.name(formData.name);
+    if (nameErrors.length > 0) {
+      allErrors.name = nameErrors;
+    }
   }
   
   const emailErrors = validators.email(formData.email);

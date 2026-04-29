@@ -267,6 +267,46 @@
   text-decoration: underline;
 }
 
+/* Botón principal dentro de OTP (Verificar) */
+.auth-button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #082EB7; /* azul solicitado */
+  color: #ffffff;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  box-shadow: 0 6px 18px rgba(8,46,183,0.12);
+}
+
+.auth-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #061f8f;
+  box-shadow: 0 10px 30px rgba(8,46,183,0.16);
+}
+
+.auth-button:active {
+  transform: translateY(0);
+}
+
+.auth-button:focus {
+  outline: 3px solid rgba(8,46,183,0.18);
+  outline-offset: 2px;
+}
+
+.auth-button:disabled {
+  background: #cbd5e1;
+  color: #6b7280;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .form-options {
@@ -423,26 +463,43 @@
 }
 
 .link-button {
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #082EB7; /* azul solicitado */
+  color: #ffffff; /* texto blanco */
   border: none;
-  color: #7c3aed;
-  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
   font-size: 13px;
-  font-weight: 600;
-  padding: 8px;
+  font-weight: 700;
+  cursor: pointer;
   text-align: center;
-  transition: all 0.2s ease;
-  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  box-shadow: 0 6px 18px rgba(8,46,183,0.12);
 }
 
 .link-button:hover:not(:disabled) {
-  color: #6d28d9;
-  text-decoration: underline;
+  transform: translateY(-2px);
+  background: #061f8f;
+  box-shadow: 0 10px 30px rgba(8,46,183,0.16);
+}
+
+.link-button:active {
+  transform: translateY(0);
+}
+
+.link-button:focus {
+  outline: 3px solid rgba(8,46,183,0.18);
+  outline-offset: 2px;
 }
 
 .link-button:disabled {
-  color: #d1d5db;
+  background: #cbd5e1;
+  color: #6b7280;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 
