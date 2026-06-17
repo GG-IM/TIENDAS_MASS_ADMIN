@@ -60,11 +60,12 @@ export const useCheckoutData = () => {
 
   // Cargar tarjetas del usuario
   useEffect(() => {
-    if (!usuario?.token) return;
+    const token = getToken();
+    if (!token) return;
 
     const loadUserCards = async () => {
       try {
-        const cards = await checkoutService.fetchUserCards(usuario.token);
+        const cards = await checkoutService.fetchUserCards(token);
         setUserCards(cards);
       } catch (error) {
         console.error('Error loading user cards:', error);
@@ -72,7 +73,7 @@ export const useCheckoutData = () => {
       }
     };
     loadUserCards();
-  }, [usuario?.token]);
+  }, [getToken]);
 
   return {
     metodosPago,
@@ -83,9 +84,10 @@ export const useCheckoutData = () => {
     error,
     setError,
     reloadUserAddresses: async () => {
-      if (!usuario?.token) return;
+      const token = getToken();
+      if (!token) return;
       try {
-        const addresses = await checkoutService.fetchUserAddresses(usuario.token, usuario.id);
+        const addresses = await checkoutService.fetchUserAddresses(token, usuario.id);
         setUserAddresses(addresses);
       } catch (err) {
         console.error('Error reloading addresses:', err);

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Eye, Download, Search, Filter } from 'lucide-react';
 import axios from 'axios';
 import swal from 'sweetalert2';
+import { useUsuario } from '../../context/userContext';
 
 const OrderReports = () => {
+  const { getToken } = useUsuario();
   const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -21,7 +23,12 @@ const API_URL = "http://localhost:5001/api/pedidos";
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(API_URL);
+      const token = getToken();
+      const response = await axios.get(API_URL, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('📦 Pedidos recibidos:', response.data);
   setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
@@ -139,7 +146,12 @@ const API_URL = "http://localhost:5001/api/pedidos";
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       setLoading(true);
-      await axios.put(`${API_URL}/${orderId}`, { estado: newStatus });
+      const token = getToken();
+      await axios.put(`${API_URL}/${orderId}`, { estado: newStatus }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
       // Actualizar la lista de pedidos
       setOrders(orders.map(order => 

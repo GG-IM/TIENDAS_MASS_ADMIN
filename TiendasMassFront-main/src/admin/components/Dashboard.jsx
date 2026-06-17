@@ -92,7 +92,13 @@ const Dashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/api/dashboard/estadisticas`);
+      const token = getToken();
+      const response = await fetch(`${API_URL}/api/dashboard/estadisticas`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error('Error al cargar datos del dashboard');
       }

@@ -6,6 +6,7 @@
     "build": "tsc && tsc-alias && xcopy src\\keys dist\\keys /E /I /Y && xcopy src\\public dist\\public /E /I /Y",
     "start": "node dist/app.js",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/app.ts",
+    "db:seed:custom": "node scripts/seed-custom-data.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

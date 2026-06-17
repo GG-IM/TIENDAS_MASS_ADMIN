@@ -43,7 +43,7 @@ export const useCheckoutForm = () => {
   const [pollingId, setPollingId] = useState(null);
 
   const { carrito, vaciarCarrito } = useCarrito();
-  const { usuario } = useUsuario();
+  const { usuario, getToken } = useUsuario();
 
   // Pre-llenar datos del usuario si está logueado
   useEffect(() => {
@@ -245,7 +245,7 @@ export const useCheckoutForm = () => {
 
       console.log('📦 Enviando datos adaptados:', JSON.stringify(pedidoData, null, 2));
 
-      const result = await checkoutService.crearPedido(pedidoData, usuario?.token);
+      const result = await checkoutService.crearPedido(pedidoData, getToken());
 
       const estadoPagoCalculado = paymentService.determinePaymentStatus(result, paymentMethod, metodosPago);
 
