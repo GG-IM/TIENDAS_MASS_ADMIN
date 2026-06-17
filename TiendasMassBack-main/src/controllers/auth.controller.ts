@@ -8,6 +8,7 @@ import path from 'path';
 import { crearOTP, validarOTP, registrarIntentoOTP } from '../services/otp.service';
 
 const privateKey = fs.readFileSync(path.join(__dirname, '..', 'keys', 'private.key'), 'utf8');
+const publicKey = fs.readFileSync(path.join(__dirname, '..', 'keys', 'public.key'), 'utf8');
 const usuarioRepository = AppDataSource.getRepository(Usuario);
 
 // Login general (para usuarios y administradores)
@@ -153,7 +154,7 @@ export const verifyToken = async (req: Request, res: Response): Promise<void> =>
     }
 
     const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, privateKey) as any;
+    const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] }) as any;
 
     if (!decoded || !decoded.userId) {
       res.status(401).json({ error: 'Token inválido' });

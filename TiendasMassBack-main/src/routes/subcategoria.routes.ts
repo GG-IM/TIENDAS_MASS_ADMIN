@@ -7,15 +7,20 @@ import {
   updateSubcategory,
   deleteSubcategory,
 } from '../controllers/subcategoria.controller';
+import { verificarToken } from '../middlewares/verificarToken';
+import { requirePermiso } from '../middlewares/requirePermiso';
+import { AdminModulo, AdminAccion } from '../entities/Permiso.entity';
 
 const router = express.Router();
 
-// Rutas CRUD para subcategorías
+// Rutas públicas
 router.get('/', getAllSubcategories);
 router.get('/categoria/:categoriaId', getSubcategoriesByCategory);
 router.get('/:id', getSubcategoryById);
-router.post('/', createSubcategory);
-router.put('/:id', updateSubcategory);
-router.delete('/:id', deleteSubcategory);
+
+// Rutas protegidas (admin)
+router.post('/', verificarToken, requirePermiso(AdminModulo.SUBCATEGORIAS, AdminAccion.CREATE), createSubcategory);
+router.put('/:id', verificarToken, requirePermiso(AdminModulo.SUBCATEGORIAS, AdminAccion.UPDATE), updateSubcategory);
+router.delete('/:id', verificarToken, requirePermiso(AdminModulo.SUBCATEGORIAS, AdminAccion.DELETE), deleteSubcategory);
 
 export default router;

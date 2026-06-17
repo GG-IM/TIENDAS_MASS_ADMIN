@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useUsuario } from '../context/userContext';
 import SetupAdmin from '../admin/components/SetupAdmin';
 
-const API_URL = "http://localhost:5001";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 const AdminRoute = ({ children }) => {
   const { usuario } = useUsuario();

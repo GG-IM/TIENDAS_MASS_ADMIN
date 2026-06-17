@@ -1,15 +1,19 @@
 // src/app.ts
+import 'reflect-metadata';
 import "dotenv/config"; // 👈 Esto debe ir primero
 
 import express from "express";
 import cors from "cors";
 import path from "path";
 import { AppDataSource } from "./config/data-source";
+import { container } from "@core/container";
+import { errorHandler } from "@core/middleware/errorHandler";
 
 // === RUTAS PRINCIPALES ===
 import usuariosRoutes from "./routes/usuarios.routes";
 import productRoutes from "./routes/productos.routes";
-import categoriRoutes from "./routes/categoria.routes";
+import { CategoriaController } from "./modules/categoria/categoria.controller";
+import { createCategoriaRoutes } from "./modules/categoria/categoria.routes";
 import subcategoriaRoutes from "./routes/subcategoria.routes";
 import pedidoRoutes from "./routes/pedidos.routes";
 import MetodoPagoRoutes from "./routes/metodopago.routes";
@@ -43,7 +47,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:3000",
-      "https://taisha-unvindicated-unannoyingly.ngrok-free.dev ",
+      "https://taisha-unvindicated-unannoyingly.ngrok-free.dev",
     ],
     credentials: true,
   })
@@ -67,7 +71,12 @@ app.use("/api/setup", setupRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/categorias", categoriRoutes);
+
+// --- Rutas Refactorizadas (Clean Architecture) ---
+const categoriaController = container.resolve(CategoriaController);
+app.use("/api/categorias", createCategoriaRoutes(categoriaController));
+// ------------------------------------------------
+
 app.use("/api/subcategorias", subcategoriaRoutes);
 app.use("/api/pedidos", pedidoRoutes);
 app.use("/api/metodos-pago", MetodoPagoRoutes);
@@ -77,7 +86,7 @@ app.use("/api/estados", estadoRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/direcciones", direccionRoutes);
 app.use("/api/tarjetas-usuario", tarjetaUsuarioRoutes);
-app.use("/api/tarjetas-usuario", tarjetaUsuarioRoutes);
+
 //NUEVO PARA TIENDA--JIM
 app.use("/api/tiendas", tiendaRoutes);
 app.use("/api", tipoClienteRoutes);
@@ -115,7 +124,7 @@ app.get("/api/diagnostics", async (_req, res) => {
 
     const categoryRepo = AppDataSource.getRepository("Categoria");
     const count = await AppDataSource.query(
-      `SELECT COUNT(*) as count FROM Categorias`
+      `SELECT COUNT(*) as count FROM Categoria`
     );
 
     res.json({
@@ -153,6 +162,8 @@ async function seedTipoCliente(): Promise<void> {
 }
 
 // === CONEXIÓN BD Y SERVER ===
+app.use(errorHandler);
+
 AppDataSource.initialize()
   .then(async () => {
     console.log("✅ Conexión a la base de datos exitosa");

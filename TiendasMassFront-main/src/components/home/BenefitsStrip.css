@@ -1,0 +1,77 @@
+.benefits-strip {
+  background-color: #ffffff;
+  padding: 3rem 0; /* Un poco más de espacio vertical */
+  /* Se eliminó el border-bottom para un look más limpio */
+}
+
+/* NUEVO: Estilo para el título de la sección */
+.benefits-title {
+  color: #082EB7;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem; /* Espacio ligeramente mayor entre tarjetas */
+}
+
+/* MODIFICADO: Ahora el item completo parece un botón/tarjeta */
+.benefit-item {
+  display: flex;
+  align-items: center; /* Alineación vertical centrada */
+  gap: 1rem;
+  background-color: #eff6ff; /* Fondo celeste super claro */
+  border: 1px solid #bfdbfe; /* Borde celeste */
+  border-radius: 1rem; /* Bordes bien redondeados */
+  padding: 1.25rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.benefit-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(8, 46, 183, 0.1);
+}
+
+/* MODIFICADO: Quitamos el círculo de fondo del icono y lo hacemos más grande */
+.benefit-icon {
+  flex-shrink: 0;
+  width: auto; 
+  height: auto;
+  background-color: transparent; 
+  color: #082EB7; /* Icono color azul Mass */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem; /* Icono mucho más grande */
+}
+
+/* MODIFICADO: Ajuste de tipografía */
+.benefit-text h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #082EB7;
+  text-transform: uppercase;
+}
+
+.benefit-text p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #4a5568;
+  line-height: 1.2;
+}
+
+@media (max-width: 992px) {
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}

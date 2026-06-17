@@ -1,33 +1,39 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Slider from 'react-slick';
-import '../carousel/categoriacarousel.css'; // Asegúrate de que la ruta sea correcta
-import '../categoria/categoria.css'; // Asegúrate de que la ruta sea correcta
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import '../carousel/categoriacarousel.css';
+import '../categoria/categoria.css';
+
 const API_URL = "http://localhost:5001";
-const CategoryCarousel = ({ onSelect }) => {
+
+const CATEGORY_IMAGES = [
+  'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat1-1.png',
+  'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat2.png',
+  'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat5.png',
+  'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat3.png',
+  'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat7.png',
+  'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat8.png',
+  'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat6.png',
+  'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat4.png',
+];
+
+const CategoryCarousel = ({ onSelect, navigateOnClick = false, initialCategoryId = null }) => {
+  const navigate = useNavigate();
   const [categorias, setCategorias] = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState(null);
-  const [activeId, setActiveId]   = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeId, setActiveId] = useState(initialCategoryId);
 
   useEffect(() => {
     const fetch = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/categorias`);
-        // Agrega las imágenes como en tu componente original
-        const imgs = [
-          'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat1-1.png',
-          'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat2.png',
-          'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat5.png',
-          'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat3.png',
-          'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat7.png',
-          'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat8.png',
-          'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat6.png',
-          'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat4.png',
-        ];
         const dataWithImages = res.data.map((cat, i) => ({
           ...cat,
-          imagen: imgs[i] || '/api/placeholder/120/120',
+          imagen: CATEGORY_IMAGES[i] || '/api/placeholder/120/120',
         }));
         setCategorias(dataWithImages);
       } catch (err) {
@@ -39,6 +45,18 @@ const CategoryCarousel = ({ onSelect }) => {
     fetch();
   }, []);
 
+  useEffect(() => {
+    if (!initialCategoryId || categorias.length === 0) return;
+
+    const match = categorias.find(
+      (cat) => String(cat.id) === String(initialCategoryId)
+    );
+    if (match) {
+      setActiveId(match.id);
+      if (onSelect) onSelect(match);
+    }
+  }, [initialCategoryId, categorias, onSelect]);
+
   const settings = {
     dots: false,
     infinite: true,
@@ -46,13 +64,17 @@ const CategoryCarousel = ({ onSelect }) => {
     slidesToShow: 5,
     slidesToScroll: 2,
     responsive: [
-      { breakpoint: 992, settings: { slidesToShow: 2 } },
-      { breakpoint: 576, settings: { slidesToShow: 1 } },
+      { breakpoint: 992, settings: { slidesToShow: 3 } },
+      { breakpoint: 576, settings: { slidesToShow: 2 } },
     ],
   };
 
-  const handleClick = cat => {
+  const handleClick = (cat) => {
     setActiveId(cat.id);
+    if (navigateOnClick) {
+      navigate(`/categorias?categoriaId=${cat.id}`);
+      return;
+    }
     if (onSelect) onSelect(cat);
   };
 

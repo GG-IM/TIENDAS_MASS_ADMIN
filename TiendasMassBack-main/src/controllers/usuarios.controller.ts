@@ -9,6 +9,7 @@ import { Persona } from '../entities/Persona.entity';
 import { Cliente } from '../entities/Cliente.entity';
 import { Empresa } from '../entities/Empresa.entity';
 import { TipoCliente } from '../entities/TipoCliente.entity';
+import { OTP } from '../entities/OTP.entity';
 
 //JWT
 import fs from 'fs';
@@ -30,7 +31,8 @@ const estadoRepository = AppDataSource.getRepository(Estado);
 export const getAllUsuarios = async (req: Request, res: Response): Promise<void> => {
   try {
     const usuarios = await usuarioRepository.find({
-      relations: ['estado', 'rol'], // Incluye el estado y rol en la respuesta
+      relations: ['estado', 'rol'],
+      select: ['id', 'email', 'nombre', 'direccion', 'telefono', 'ciudad', 'codigoPostal', 'creadoEn', 'actualizadoEn'],
     });
     res.json(usuarios);
   } catch (error: any) {
@@ -372,7 +374,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // Crear token JWT
     const token = jwt.sign(
       {
-        id: usuario.id,
+        userId: usuario.id,
         email: usuario.email,
         nombre: usuario.nombre,
         rol: usuario.rol.nombre
@@ -478,7 +480,7 @@ export const update = async (req: Request, res: Response): Promise<void> => {
 };
 
 
-import { OTP } from "../entities/OTP.entity";
+
 
 export const deleteUsuario = async (req: Request, res: Response): Promise<void> => {
   try {

@@ -7,25 +7,20 @@ import {
     eliminarEstado,
     actualizarOrdenEstados
 } from "../controllers/estado.controller";
+import { verificarToken } from "../middlewares/verificarToken";
+import { requirePermiso } from "../middlewares/requirePermiso";
+import { AdminModulo, AdminAccion } from "../entities/Permiso.entity";
 
 const router = Router();
 
-// Obtener todos los estados
+// Rutas públicas
 router.get("/", obtenerEstados);
-
-// Obtener un estado por ID
 router.get("/:id", obtenerEstadoPorId);
 
-// Crear un nuevo estado
-router.post("/", crearEstado);
-
-// Actualizar un estado
-router.put("/:id", actualizarEstado);
-
-// Eliminar un estado
-router.delete("/:id", eliminarEstado);
-
-// Actualizar el orden de los estados
-router.put("/orden/actualizar", actualizarOrdenEstados);
+// Rutas protegidas (admin)
+router.post("/", verificarToken, requirePermiso(AdminModulo.ESTADOS, AdminAccion.CREATE), crearEstado);
+router.put("/orden/actualizar", verificarToken, requirePermiso(AdminModulo.ESTADOS, AdminAccion.UPDATE), actualizarOrdenEstados);
+router.put("/:id", verificarToken, requirePermiso(AdminModulo.ESTADOS, AdminAccion.UPDATE), actualizarEstado);
+router.delete("/:id", verificarToken, requirePermiso(AdminModulo.ESTADOS, AdminAccion.DELETE), eliminarEstado);
 
 export default router; 

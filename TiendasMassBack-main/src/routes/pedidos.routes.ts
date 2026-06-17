@@ -9,6 +9,8 @@ import {
   obtenerEstadisticasPedidos
 } from "../controllers/pedido.controller";
 import { pagarPedido } from "../controllers/pagarpedio.controller";
+import { verificarToken } from "../middlewares/verificarToken";
+import { requireAdmin } from "../middlewares/requireAdmin";
 
 // Import extra para actualizar solo estado_pago
 import { AppDataSource } from "../config/data-source";
@@ -16,14 +18,15 @@ import { Pedido, EstadoPago } from "../entities/Pedidos.entity";
 
 const router = Router();
 
-router.post("/", crearPedido);
-router.get("/estadisticas", obtenerEstadisticasPedidos);
-router.get("/usuario/:usuarioId", obtenerPedidosPorUsuario);
-router.get("/", obtenerPedidos);
-router.get("/:id", obtenerPedidoPorId);
-router.put("/:id", actualizarEstadoPedido);
-router.delete("/:id", eliminarPedido);
-router.post("/pagar", pagarPedido);
+// Rutas protegidas (requieren login)
+router.post("/", verificarToken, crearPedido);
+router.get("/estadisticas", verificarToken, requireAdmin, obtenerEstadisticasPedidos);
+router.get("/usuario/:usuarioId", verificarToken, obtenerPedidosPorUsuario);
+router.get("/", verificarToken, requireAdmin, obtenerPedidos);
+router.get("/:id", verificarToken, obtenerPedidoPorId);
+router.put("/:id", verificarToken, requireAdmin, actualizarEstadoPedido);
+router.delete("/:id", verificarToken, requireAdmin, eliminarPedido);
+router.post("/pagar", verificarToken, pagarPedido);
 
 // 🔥 NUEVA RUTA: actualizar SOLO el estado de pago de un pedido
 // PATCH /api/pedidos/:id/estado-pago

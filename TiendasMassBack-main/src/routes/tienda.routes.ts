@@ -7,15 +7,20 @@ import {
   eliminarTienda,
   obtenerTiendasActivas
 } from "../controllers/tienda.controller";
+import { verificarToken } from "../middlewares/verificarToken";
+import { requirePermiso } from "../middlewares/requirePermiso";
+import { AdminModulo, AdminAccion } from "../entities/Permiso.entity";
 
 const router = Router();
 
+// Rutas públicas
 router.get("/", obtenerTiendas);
 router.get("/activas", obtenerTiendasActivas);
-
 router.get("/:id", obtenerTiendaPorId);
-router.post("/", crearTienda);
-router.put("/:id", actualizarTienda);
-router.delete("/:id", eliminarTienda);
+
+// Rutas protegidas (admin)
+router.post("/", verificarToken, requirePermiso(AdminModulo.TIENDAS, AdminAccion.CREATE), crearTienda);
+router.put("/:id", verificarToken, requirePermiso(AdminModulo.TIENDAS, AdminAccion.UPDATE), actualizarTienda);
+router.delete("/:id", verificarToken, requirePermiso(AdminModulo.TIENDAS, AdminAccion.DELETE), eliminarTienda);
 
 export default router;

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Productos from '../components/productos/productos';
 import Navbar from '../components/navbar/Navbar';
 import Footer from '../components/footer/Footer';
@@ -10,16 +11,16 @@ import ProductDetailModal from '../components/productos/detalleproductomodal';
 import CategoryCarousel from '../components/carousel/categoriacarousel';
 
 const Categorias = () => {
+  const [searchParams] = useSearchParams();
+  const categoriaIdParam = searchParams.get('categoriaId');
   const [categoriaActiva, setCategoriaActiva] = useState(null);
 
-  // Estado para el modal
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Handler para seleccionar categoría
-  const handleSelectCategoria = (cat) => {
+  const handleSelectCategoria = useCallback((cat) => {
     setCategoriaActiva(cat);
-  };
+  }, []);
 
   // Abrir modal con producto seleccionado
   const openModal = (producto) => {
@@ -43,7 +44,10 @@ const Categorias = () => {
       <main className="layout-contenido">
         <section className="categorias-grid-container">
           <h2 className="sub">CATEGORÍAS</h2>
-          <CategoryCarousel onSelect={handleSelectCategoria} />
+          <CategoryCarousel
+            onSelect={handleSelectCategoria}
+            initialCategoryId={categoriaIdParam}
+          />
         </section>
 
         <h2 className="sub">PRODUCTOS</h2>

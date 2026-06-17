@@ -1,96 +1,183 @@
-import React, { useState } from 'react';
-import { ShoppingCart, Plus, Minus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Plus, Minus, X } from 'lucide-react';
 import { useCarrito } from '../../context/carContext';
 import './detalleproducto.css';
 
 const API_URL = "http://localhost:5001";
 
+// Fondos suaves para la caja de la imagen y el badge
 const categoriaColors = {
-  1: '#33DDC8',
-  2: '#7ACEFC',
-  3: '#33DDC8',
-  4: '#B097DF',
-  5: '#B097DF',
-  6: '#F5DB3D',
-  7: '#F5DB3D',
-  8: '#FBBF24',
+  1: '#E1F5EE', // Lácteos
+  2: '#E6F1FB', // Bebidas
+  3: '#E1F5EE', // Abarrotes
+  4: '#EEEDFE', // Embutidos
+  5: '#EEEDFE', // Limpieza
+  6: '#FAEEDA', // Snacks
+  7: '#FAEEDA', // Panadería
+  8: '#f4f6f8', // Otros
+};
+
+// Colores de texto para el badge (para que resalte sobre su fondo)
+const categoriaTextColors = {
+  1: '#0F6E56',
+  2: '#0D47A1',
+  3: '#0F6E56',
+  4: '#283593',
+  5: '#283593',
+  6: '#E65100',
+  7: '#E65100',
+  8: '#424242',
+};
+
+const categoriaNombres = {
+  1: 'Lácteos',
+  2: 'Bebidas',
+  3: 'Abarrotes',
+  4: 'Embutidos',
+  5: 'Limpieza',
+  6: 'Snacks',
+  7: 'Panadería',
+  8: 'Otros',
 };
 
 const ProductDetailModal = ({ product, isOpen, onClose }) => {
   const [quantity, setQuantity] = useState(1);
   const { agregarProducto } = useCarrito();
 
-  if (!product) return null;
+  // Resetear la cantidad a 1 cada vez que se abre un nuevo producto
+  useEffect(() => {
+    if (isOpen) setQuantity(1);
+  }, [isOpen, product]);
 
   const incrementQuantity = () => setQuantity(prev => prev + 1);
   const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
-  const categoriaColor = categoriaColors[product.categoria?.id] || '#5EEAD4';
+
+  const categoriaId = product?.categoria?.id || 8;
+  const bgBadgeColor = categoriaColors[categoriaId] || '#f4f6f8';
+  const textBadgeColor = categoriaTextColors[categoriaId] || '#424242';
+  const categoriaNombre = categoriaNombres[categoriaId] || 'Producto';
+  
+  const precio = product ? parseFloat(product.precio) : 0;
+  const total = (precio * quantity).toFixed(2);
+
+  const handleAgregar = () => {
+    agregarProducto({ ...product, cantidad: quantity });
+    onClose();
+  };
+
+  if (!product || !isOpen) return null;
 
   return (
-    <div className={`modal fade ${isOpen ? 'show d-block' : ''}`} tabIndex="-1" role="dialog">
+    <div
+      className={`modal fade ${isOpen ? 'show d-block' : ''}`}
+      tabIndex="-1"
+      role="dialog"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div className="modal-content shadow rounded-4 overflow-hidden">
+        <div className="modal-content position-relative shadow-lg border-0">
+          
+          {/* Botón Cerrar Flotante */}
+          <button
+            type="button"
+            className="btn-close-custom"
+            onClick={onClose}
+            aria-label="Cerrar"
+          >
+            <X size={20} strokeWidth={2.5} />
+          </button>
 
-          {/* Header */}
-          <div className="modal-header custom-header border-bottom-0">
-            <h5 className="modal-title custom-title fw-bold">{product.nombre}</h5>
-            <button type="button" className="btn-close" onClick={onClose}></button>
-          </div>
+          {/* Cuerpo Unificado del Modal */}
+          <div className="modal-body p-4 p-md-5">
+            <div className="row g-4 align-items-center">
 
-          {/* Body */}
-          <div className="modal-body p-4">
-            <div className="row g-4">
-              
-              {/* Imagen con fondo circular por categoría */}
-              <div className="col-md-5 d-flex justify-content-center align-items-center">
-                <div
-                  className="circle-background"
-                  style={{ backgroundColor: categoriaColor }}
+              {/* Columna Izquierda: Imagen en caja rectangular */}
+              <div className="col-md-5">
+                <div 
+                  className="custom-image-box" 
+                  style={{ backgroundColor: bgBadgeColor }}
                 >
                   <img
                     src={`${API_URL}/${product.imagen}`}
                     alt={product.nombre}
-                    className="img-fluid rounded object-fit-contain"
-                    style={{ maxHeight: '240px', maxWidth: '340px' }}
+                    className="img-fluid object-fit-contain"
+                   
                   />
                 </div>
               </div>
 
-              {/* Detalles */}
+              {/* Columna Derecha: Detalles de Producto */}
               <div className="col-md-7">
-                <p className="custom-description">{product.descripcion}</p>
-
-                {product.marca && (
-                  <p className="mb-2"><strong>Marca:</strong> {product.marca}</p>
-                )}
-
-                <h3 className="custom-price fw-bold mb-3">S/ {parseFloat(product.precio).toFixed(2)}</h3>
-
-                {/* Cantidad */}
-                <div className="d-flex align-items-center mb-4">
-                  <span className="fw-bold me-3">Cantidad:</span>
-                  <div className="btn-group" role="group">
-                    <button className="custom-btn-quantity" onClick={decrementQuantity}>
-                      <Minus size={16} />
-                    </button>
-                    <button className="custom-btn-display px-4 disabled">{quantity}</button>
-                    <button className="custom-btn-quantity" onClick={incrementQuantity}>
-                      <Plus size={16} />
-                    </button>
+                <div className="custom-details-col h-100 d-flex flex-column">
+                  
+                  {/* Encabezado: Categoría y Título */}
+                  <div className="mb-3">
+                    <span 
+                      className="custom-category-badge mb-2"
+                      style={{ backgroundColor: bgBadgeColor, color: textBadgeColor }}
+                    >
+                      {categoriaNombre}
+                    </span>
+                    <h2 className="custom-title">{product.nombre}</h2>
                   </div>
-                </div>
 
-                {/* Botón Agregar al carrito */}
-                <button
-                  className="custom-btn-add-cart w-100 py-2 fs-5 d-flex justify-content-center align-items-center gap-2"
-                  onClick={() => {
-                    agregarProducto({ ...product, cantidad: quantity });
-                    onClose();
-                  }}
-                >
-                  <ShoppingCart size={20} />
-                  Agregar al carrito
-                </button>
+                  {/* Descripción y Marca */}
+                  <p className="custom-description mb-2">{product.descripcion}</p>
+                  {product.marca && (
+                    <p className="custom-brand mb-3">
+                      Marca: <strong>{product.marca}</strong>
+                    </p>
+                  )}
+
+                  {/* Precio Principal */}
+                  <div className="price-container mb-4">
+                    <p className="custom-price">S/ {precio.toFixed(2)}</p>
+                    <p className="custom-price-note">Precio unitario</p>
+                  </div>
+
+                  {/* Caja de Controles de Compra (Empujada al fondo) */}
+                  <div className="purchase-controls mt-auto">
+                    
+                    {/* Fila Cantidad */}
+                    <div className="custom-qty-row mb-3">
+                      <span className="custom-qty-label">Cantidad</span>
+                      <div className="custom-qty-group">
+                        <button
+                          className="custom-btn-quantity"
+                          onClick={decrementQuantity}
+                          aria-label="Reducir"
+                        >
+                          <Minus size={16} strokeWidth={2.5} />
+                        </button>
+                        <span className="custom-qty-display">{quantity}</span>
+                        <button
+                          className="custom-btn-quantity"
+                          onClick={incrementQuantity}
+                          aria-label="Aumentar"
+                        >
+                          <Plus size={16} strokeWidth={2.5} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Fila Total */}
+                    <div className="custom-total-row mb-3 d-flex justify-content-between align-items-center">
+                      <span className="custom-total-label">Total estimado</span>
+                      <span className="custom-total-value">S/ {total}</span>
+                    </div>
+
+                    {/* Botón CTA */}
+                    <button
+                      className="custom-btn-add-cart w-100"
+                      onClick={handleAgregar}
+                    >
+                      <ShoppingCart size={20} strokeWidth={2.5} />
+                      AGREGAR AL CARRITO
+                    </button>
+                    
+                  </div>
+
+                </div>
               </div>
             </div>
           </div>

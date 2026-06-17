@@ -6,8 +6,8 @@ import { AdminModulo, AdminAccion } from '../entities/Permiso.entity';
 
 const router = Router();
 
-router.get('/', getAllUsuarios); // pública
-router.get('/:id',  getUsuarioById); // protegida
+router.get('/', verificarToken, requirePermiso(AdminModulo.USUARIOS, AdminAccion.READ), getAllUsuarios); // admin
+router.get('/:id', verificarToken, getUsuarioById); // autenticado
 router.post('/', register); // crear usuario (alias de /register)
 router.post('/register', register); // pública
 router.post('/login', login); // pública

@@ -46,8 +46,8 @@ function App() {
   return (
     <UsuarioProvider>
       <CarritoProvider>
-        <SkipLinks />
         <Router>
+          <SkipLinks />
           <Routes>
             {/* Rutas Admin */}
             <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>}>
@@ -83,6 +83,9 @@ function App() {
             <Route path="/checkout/failure" element={<CheckoutFailure />} />
             {/* ⏳ Ruta para pagos pendientes */}
             <Route path="/checkout/pending" element={<CheckoutPending />} />
+
+            {/* Ruta catch-all (404) */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
       </CarritoProvider>

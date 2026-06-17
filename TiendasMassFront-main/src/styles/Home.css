@@ -77,13 +77,50 @@ html, body {
 }
 /*productos*/
 .sub {
-  color:#082EB7 !important;
-  font-weight: 900;
- margin: 0px 0px 8px;
-  font-size: 2.5rem;
+  color: #082EB7 !important;
+  font-weight: 800; /* De 900 a 800 para mayor limpieza */
+  margin: 0px 0px 8px;
+  font-size: 2rem; /* Reducido de 2.5rem a 2rem */
+  letter-spacing: -0.5px; /* Junta un poquitito las letras */
 }
 .bg-light-custom2{
   background-color:#FFF8D9 !important; ;
+}
+
+.home-section {
+  padding: 3rem 0;
+  width: 100%;
+}
+
+.bg-categories {
+  background-color: #ffffff;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.section-subtitle {
+  margin: 0;
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+.section-link {
+  color: #082EB7;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.section-link:hover {
+  text-decoration: underline;
+  color: #082EB7;
 }
 
 /* Bootstrap container ya centra y limita ancho */
@@ -113,6 +150,17 @@ a:hover {
   background-color: #e6c200; /* un amarillo más oscuro al hover */
   color: #082EB7;             /* texto sigue azul */
 }
+.bg-categories {
+
+  background-color: #ebf4f9;
+}
+.benefits-section {
+  padding: 3rem 0;
+  width: 100%;
+  background-color: #ebf4f9;
+}
+
+
 @media (max-width: 767px) {
   /* Centrar el botón como antes */
   .btn.btn-light {
